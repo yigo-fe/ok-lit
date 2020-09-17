@@ -13,7 +13,10 @@
   defineComponent('my-component', () => {
     const state = reactive({
       text: 'hello',
-      show: true
+      show: true,
+      childData: {
+        text: 'hola'
+      }
     })
     const toggle = () => {
       state.show = !state.show
@@ -27,11 +30,12 @@
       <p>
       ${state.text} <input value=${state.text} @input=${onInput}>
       </p>
-      ${state.show ? html`<my-child msg=${state.text}></my-child>` : ``}
+      <p>A: ${state.childData.text}</p>
+      ${state.show ? html`<my-child msg=${state.text} .data=${state.childData}></my-child>` : ``}
     `
   })
 
-  defineComponent('my-child', ['msg'], (props) => {
+  defineComponent('my-child', ['msg', 'data'], (props) => {
     const state = reactive({ count: 0 })
     const increase = () => {
       state.count++
@@ -51,6 +55,7 @@
 
     return () => html`
       <p>${props.msg}</p>
+      <p>X: ${props.data?.text}<p>
       <p>${state.count}</p>
       <button @click=${increase}>increase</button>
     `
