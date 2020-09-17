@@ -1,8 +1,5 @@
-import { render } from 'https://unpkg.com/lit-html?module'
-import {
-  shallowReactive,
-  effect
-} from 'https://unpkg.com/@vue/reactivity/dist/reactivity.esm-browser.js'
+import { render } from 'lit-html'
+import {shallowReactive, effect} from '@vue/reactivity/dist/reactivity.esm-browser.js'
 
 let currentInstance
 
@@ -66,5 +63,5 @@ export const onBeforeUpdate = createLifecycleMethod('_bu')
 export const onUpdated = createLifecycleMethod('_u')
 export const onUnmounted = createLifecycleMethod('_um')
 
-export * from 'https://unpkg.com/lit-html?module'
-export * from 'https://unpkg.com/@vue/reactivity/dist/reactivity.esm-browser.js'
+export * from 'lit-html'
+export * from '@vue/reactivity/dist/reactivity.esm-browser.js'
