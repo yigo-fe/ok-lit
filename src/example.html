@@ -1,7 +1,7 @@
 <my-component></my-component>
 
 <script src="../dist/ok-lit.umd.js"></script>
-<script type="module">
+<script>
   const {
     defineComponent,
     reactive,
@@ -26,12 +26,16 @@
       state.text = e.target.value
     }
 
+    const onIncrease = e => {
+      console.log('child increase', e.detail)
+    }
+
     onMounted(() => {
       console.log(context.$refs)
     })
 
     const mountedCallback = () => {
-      console.log('mountedCallback', context.$refs)
+      console.log('child mounted', context.$refs)
     }
 
     return () => html`
@@ -41,15 +45,16 @@
       </p>
       <p v-show="${state.show}">style display v-show</p>
       <p ref="p">A: ${state.childData.text}</p>
-      ${state.show ? html`<my-child @hook:mounted="${mountedCallback}" ref="myChild" msg=${state.text} .data=${state.childData}></my-child>` : ``}
+      ${state.show ? html`<my-child @hook:mounted="${mountedCallback}" ref="myChild" msg=${state.text} .data=${state.childData} @increase="${onIncrease}"></my-child>` : ``}
     `
     // 在defineComponent里边使用子组件传参时，使用.可以直接传入对象
   })
 
-  defineComponent('my-child', ['msg', 'data'], (props) => {
+  defineComponent('my-child', ['msg', 'data'], (props, context) => {
     const state = reactive({ count: 0 })
     const increase = () => {
       state.count++
+      context.emit('increase', state.count)
     }
 
     onMounted(() => {
