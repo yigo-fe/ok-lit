@@ -1,16 +1,17 @@
 <my-component></my-component>
 
+<script src="../dist/ok-lit.umd.js"></script>
 <script type="module">
-  import {
+  const {
     defineComponent,
     reactive,
     html,
     onMounted,
     onUpdated,
     onUnmounted
-  } from './index.js'
+  } = window.okLit
 
-  defineComponent('my-component', () => {
+  defineComponent('my-component', (props, context) => {
     const state = reactive({
       text: 'hello',
       show: true,
@@ -25,14 +26,24 @@
       state.text = e.target.value
     }
 
+    onMounted(() => {
+      console.log(context.$refs)
+    })
+
+    const mountedCallback = () => {
+      console.log('mountedCallback', context.$refs)
+    }
+
     return () => html`
       <button @click=${toggle}>toggle child</button>
       <p>
       ${state.text} <input value=${state.text} @input=${onInput}>
       </p>
-      <p>A: ${state.childData.text}</p>
-      ${state.show ? html`<my-child msg=${state.text} .data=${state.childData}></my-child>` : ``}
+      <p v-show="${state.show}">style display v-show</p>
+      <p ref="p">A: ${state.childData.text}</p>
+      ${state.show ? html`<my-child @hook:mounted="${mountedCallback}" ref="myChild" msg=${state.text} .data=${state.childData}></my-child>` : ``}
     `
+    // 在defineComponent里边使用子组件传参时，使用.可以直接传入对象
   })
 
   defineComponent('my-child', ['msg', 'data'], (props) => {
