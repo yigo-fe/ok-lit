@@ -7,21 +7,21 @@ type Hooks = Array<HookFn>
 
 let currentInstance: any | null
 
-type FactoryFn = (props: object, context: {
+type SetupFn = (props: object, context: {
   $el: ShadowRoot
   $refs: Record<string, HTMLElement>
   emit(event: string, payload?: any): void
 }) => () => TemplateResult
-export function defineComponent(name: string, factory: FactoryFn): void
-export function defineComponent(name: string, props: string[], factory: FactoryFn): void
-export function defineComponent(name: string, props: string[] | FactoryFn, factory?: FactoryFn) {
+export function defineComponent(name: string, setup: SetupFn): void
+export function defineComponent(name: string, props: string[], setup: SetupFn): void
+export function defineComponent(name: string, props: string[] | SetupFn, setup?: SetupFn) {
   let propsDefs: string[] = []
-  let setupFn: FactoryFn
+  let setupFn: SetupFn
   if (typeof props === 'function') {
     setupFn = props
-  } else if (factory) {
+  } else if (setup) {
     propsDefs = props
-    setupFn = factory
+    setupFn = setup
   }
 
   const Component = class extends HTMLElement {
