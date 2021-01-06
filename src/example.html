@@ -34,8 +34,12 @@
       console.log(context.$refs)
     })
 
+    onUpdated(() => {
+      console.log(context.$refs)
+    })
+
     const mountedCallback = () => {
-      console.log('child mounted', context.$refs)
+      console.log('child mounted in parent', '此时并拿不到$refs.myChild')
     }
 
     return () => html`
@@ -45,18 +49,24 @@
       </p>
       <p v-show="${state.show}">style display v-show</p>
       <p ref="p">A: ${state.childData.text}</p>
-      ${state.show ? html`<my-child @hook:mounted="${mountedCallback}" ref="myChild" msg=${state.text} .data=${state.childData} @increase="${onIncrease}"></my-child>` : ``}
+      ${state.show ? html`<my-child @hook:mounted="${mountedCallback}" ref="myChild" .msg=${state.text} .data=${state.childData} @increase="${onIncrease}"></my-child>` : ``}
     `
     // 在defineComponent里边使用子组件传参时，使用.可以直接传入对象
   })
 
-  defineComponent('my-child', ['msg', 'data'], (props, context) => {
+  defineComponent('my-child', {
+    msg: {
+      type: String,
+    },
+    data: {
+      type: Object
+    }
+  }, (props, context) => {
     const state = reactive({ count: 0 })
     const increase = () => {
       state.count++
       context.emit('increase', state.count)
     }
-
     onMounted(() => {
       console.log('child mounted')
     })
@@ -66,7 +76,7 @@
     })
 
     onUnmounted(() => {
-      console.log('child unmounted')
+      console.log('html child unmounted')
     })
 
     return () => html`

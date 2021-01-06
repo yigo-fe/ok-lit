@@ -1,3 +1,5 @@
+
+(function(l, r) { if (l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (window.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(window.document);
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -1252,8 +1254,9 @@
      * \/\*#\_\_PURE\_\_\*\/
      * So that rollup can tree-shake them if necessary.
      */
-    const EMPTY_OBJ =  {};
-    const NOOP = () => { };
+    const EMPTY_OBJ =  Object.freeze({})
+        ;
+    const EMPTY_ARR =  Object.freeze([]) ;
     const extend = Object.assign;
     const hasOwnProperty = Object.prototype.hasOwnProperty;
     const hasOwn = (val, key) => hasOwnProperty.call(val, key);
@@ -1273,6 +1276,17 @@
         key !== 'NaN' &&
         key[0] !== '-' &&
         '' + parseInt(key, 10) === key;
+    const cacheStringFunction = (fn) => {
+        const cache = Object.create(null);
+        return ((str) => {
+            const hit = cache[str];
+            return hit || (cache[str] = fn(str));
+        });
+    };
+    /**
+     * @private
+     */
+    const capitalize = cacheStringFunction((str) => str.charAt(0).toUpperCase() + str.slice(1));
     // compare whether a value has changed, accounting for NaN.
     const hasChanged = (value, oldValue) => value !== oldValue && (value === value || oldValue === oldValue);
     const def = (obj, key, value) => {
@@ -1286,8 +1300,8 @@
     const targetMap = new WeakMap();
     const effectStack = [];
     let activeEffect;
-    const ITERATE_KEY = Symbol( '');
-    const MAP_KEY_ITERATE_KEY = Symbol( '');
+    const ITERATE_KEY = Symbol( 'iterate' );
+    const MAP_KEY_ITERATE_KEY = Symbol( 'Map key iterate' );
     function isEffect(fn) {
         return fn && fn._isEffect === true;
     }
@@ -1378,6 +1392,14 @@
         if (!dep.has(activeEffect)) {
             dep.add(activeEffect);
             activeEffect.deps.push(dep);
+            if ( activeEffect.options.onTrack) {
+                activeEffect.options.onTrack({
+                    effect: activeEffect,
+                    target,
+                    type,
+                    key
+                });
+            }
         }
     }
     function trigger(target, type, key, newValue, oldValue, oldTarget) {
@@ -1443,6 +1465,17 @@
             }
         }
         const run = (effect) => {
+            if ( effect.options.onTrigger) {
+                effect.options.onTrigger({
+                    effect,
+                    target,
+                    key,
+                    type,
+                    newValue,
+                    oldValue,
+                    oldTarget
+                });
+            }
             if (effect.options.scheduler) {
                 effect.options.scheduler(effect);
             }
@@ -1552,7 +1585,7 @@
                     trigger(target, "add" /* ADD */, key, value);
                 }
                 else if (hasChanged(value, oldValue)) {
-                    trigger(target, "set" /* SET */, key, value);
+                    trigger(target, "set" /* SET */, key, value, oldValue);
                 }
             }
             return result;
@@ -1563,7 +1596,7 @@
         const oldValue = target[key];
         const result = Reflect.deleteProperty(target, key);
         if (result && hadKey) {
-            trigger(target, "delete" /* DELETE */, key, undefined);
+            trigger(target, "delete" /* DELETE */, key, undefined, oldValue);
         }
         return result;
     }
@@ -1588,9 +1621,15 @@
     const readonlyHandlers = {
         get: readonlyGet,
         set(target, key) {
+            {
+                console.warn(`Set operation on key "${String(key)}" failed: target is readonly.`, target);
+            }
             return true;
         },
         deleteProperty(target, key) {
+            {
+                console.warn(`Delete operation on key "${String(key)}" failed: target is readonly.`, target);
+            }
             return true;
         }
     };
@@ -1665,13 +1704,16 @@
             key = toRaw(key);
             hadKey = has.call(target, key);
         }
+        else {
+            checkIdentityKeys(target, has, key);
+        }
         const oldValue = get.call(target, key);
         target.set(key, value);
         if (!hadKey) {
             trigger(target, "add" /* ADD */, key, value);
         }
         else if (hasChanged(value, oldValue)) {
-            trigger(target, "set" /* SET */, key, value);
+            trigger(target, "set" /* SET */, key, value, oldValue);
         }
         return this;
     }
@@ -1683,21 +1725,28 @@
             key = toRaw(key);
             hadKey = has.call(target, key);
         }
+        else {
+            checkIdentityKeys(target, has, key);
+        }
         const oldValue = get ? get.call(target, key) : undefined;
         // forward the operation before queueing reactions
         const result = target.delete(key);
         if (hadKey) {
-            trigger(target, "delete" /* DELETE */, key, undefined);
+            trigger(target, "delete" /* DELETE */, key, undefined, oldValue);
         }
         return result;
     }
     function clear() {
         const target = toRaw(this);
         const hadItems = target.size !== 0;
+        const oldTarget =  isMap(target)
+                ? new Map(target)
+                : new Set(target)
+            ;
         // forward the operation before queueing reactions
         const result = target.clear();
         if (hadItems) {
-            trigger(target, "clear" /* CLEAR */, undefined, undefined);
+            trigger(target, "clear" /* CLEAR */, undefined, undefined, oldTarget);
         }
         return result;
     }
@@ -1749,6 +1798,10 @@
     }
     function createReadonlyMethod(type) {
         return function (...args) {
+            {
+                const key = args[0] ? `on key "${args[0]}" ` : ``;
+                console.warn(`${capitalize(type)} operation ${key}failed: target is readonly.`, toRaw(this));
+            }
             return type === "delete" /* DELETE */ ? false : this;
         };
     }
@@ -1832,6 +1885,17 @@
     const readonlyCollectionHandlers = {
         get: createInstrumentationGetter(true, false)
     };
+    function checkIdentityKeys(target, has, key) {
+        const rawKey = toRaw(key);
+        if (rawKey !== key && has.call(target, rawKey)) {
+            const type = toRawType(target);
+            console.warn(`Reactive ${type} contains both the raw and reactive ` +
+                `versions of the same object${type === `Map` ? ` as keys` : ``}, ` +
+                `which can lead to inconsistencies. ` +
+                `Avoid differentiating between the raw and reactive versions ` +
+                `of an object and only use the reactive version if possible.`);
+        }
+    }
 
     const reactiveMap = new WeakMap();
     const readonlyMap = new WeakMap();
@@ -1887,6 +1951,9 @@
     }
     function createReactiveObject(target, isReadonly, baseHandlers, collectionHandlers) {
         if (!isObject(target)) {
+            {
+                console.warn(`value cannot be made reactive: ${String(target)}`);
+            }
             return target;
         }
         // target is already a Proxy, return it.
@@ -1966,7 +2033,7 @@
         return new RefImpl(rawValue, shallow);
     }
     function triggerRef(ref) {
-        trigger(toRaw(ref), "set" /* SET */, 'value',  void 0);
+        trigger(toRaw(ref), "set" /* SET */, 'value',  ref.value );
     }
     function unref(ref) {
         return isRef(ref) ? ref.value : ref;
@@ -2007,6 +2074,9 @@
         return new CustomRefImpl(factory);
     }
     function toRefs(object) {
+        if ( !isProxy(object)) {
+            console.warn(`toRefs() expects a reactive object but received a plain one.`);
+        }
         const ret = isArray(object) ? new Array(object.length) : {};
         for (const key in object) {
             ret[key] = toRef(object, key);
@@ -2065,7 +2135,10 @@
         let setter;
         if (isFunction(getterOrOptions)) {
             getter = getterOrOptions;
-            setter =  NOOP;
+            setter =  () => {
+                    console.warn('Write operation failed: computed value is readonly');
+                }
+                ;
         }
         else {
             getter = getterOrOptions.get;
@@ -2075,15 +2148,15 @@
     }
 
     let currentInstance;
-    function defineComponent(name, props, factory) {
-        let propsDefs = [];
+    function defineComponent(name, props, setup) {
+        let propsKeys = [];
         let setupFn;
         if (typeof props === 'function') {
             setupFn = props;
         }
-        else if (factory) {
-            propsDefs = props;
-            setupFn = factory;
+        else if (typeof setup === 'function') {
+            setupFn = setup;
+            propsKeys = Object.keys(props);
         }
         const Component = class extends HTMLElement {
             constructor() {
@@ -2094,7 +2167,8 @@
                 this._m = [];
                 this._um = [];
                 this.$refs = {};
-                const props = (this._props = shallowReactive({}));
+                const propsInit = this.getProps();
+                const props = (this._props = shallowReactive(propsInit));
                 currentInstance = this;
                 const template = setupFn.call(this, props, this);
                 currentInstance = null;
@@ -2119,19 +2193,16 @@
                 });
                 // Remove an instance properties that alias reactive properties which
                 // might have been set before the element was upgraded.
-                for (const propName of propsDefs) {
+                for (const propName of propsKeys) {
                     if (this.hasOwnProperty(propName)) {
-                        // @ts-ignore
                         const v = this[propName];
-                        // @ts-ignore
                         delete this[propName];
-                        // @ts-ignore
                         this[propName] = v;
                     }
                 }
             }
             static get observedAttributes() {
-                return propsDefs;
+                return propsKeys;
             }
             applyDirective() {
                 this.applyVShow();
@@ -2176,6 +2247,14 @@
                 });
                 this.dispatchEvent(customEvent);
             }
+            getProps() {
+                // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
+                let obj = {};
+                for (const propName of propsKeys) {
+                    obj[propName] = this.getAttribute(propName) || this[propName];
+                }
+                return obj;
+            }
             connectedCallback() {
                 this.applyDirective();
                 this._m && this._m.forEach((cb) => cb());
@@ -2186,13 +2265,14 @@
                 this.emit('hook:unmount');
             }
             attributeChangedCallback(name, oldValue, newValue) {
-                // @ts-ignore
                 this._props[name] = newValue;
             }
         };
-        for (const propName of propsDefs) {
+        for (const propName of propsKeys) {
             Object.defineProperty(Component.prototype, propName, {
                 get() {
+                    if (!this._props)
+                        return undefined;
                     return this._props[propName];
                 },
                 set(v) {

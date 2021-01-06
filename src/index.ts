@@ -1,5 +1,5 @@
-import { render, TemplateResult } from 'lit-html'
-import { shallowReactive, effect } from '@vue/reactivity'
+import {render, TemplateResult} from 'lit-html'
+import {effect, shallowReactive} from '@vue/reactivity'
 
 type HookFn = () => unknown
 type HookName = '_bm' | '_bu' | '_u' | '_m' | '_um'
@@ -7,25 +7,34 @@ type Hooks = Array<HookFn>
 
 let currentInstance: any | null
 
-type FactoryFn = (props: object, context: {
+type SetupFn = (props: object, context: {
   $el: ShadowRoot
   $refs: Record<string, HTMLElement>
   emit(event: string, payload?: any): void
 }) => () => TemplateResult
-export function defineComponent(name: string, factory: FactoryFn): void
-export function defineComponent(name: string, props: string[], factory: FactoryFn): void
-export function defineComponent(name: string, props: string[] | FactoryFn, factory?: FactoryFn) {
-  let propsDefs: string[] = []
-  let setupFn: FactoryFn
+type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor
+interface PropsType {
+  [key: string]: {
+    type: PropTypes | PropTypes[]
+    default?: string | number | boolean | object | Array<any> | Function
+    required?: boolean
+    transform?: (value: string) => any
+  }
+}
+export function defineComponent(name: string, setup: SetupFn): void
+export function defineComponent(name: string, props: PropsType, setup: SetupFn): void
+export function defineComponent(name: string, props: PropsType | SetupFn, setup?: SetupFn) {
+  let propsKeys: string[] = []
+  let setupFn: SetupFn
   if (typeof props === 'function') {
     setupFn = props
-  } else if (factory) {
-    propsDefs = props
-    setupFn = factory
+  } else if (typeof setup === 'function') {
+    setupFn = setup
+    propsKeys = Object.keys(props)
   }
 
   const Component = class extends HTMLElement {
-    private readonly _props: object
+    private readonly _props: any
     private readonly _bm: Hooks = []
     private readonly _bu: Hooks = []
     private readonly _u: Hooks = []
@@ -34,13 +43,13 @@ export function defineComponent(name: string, props: string[] | FactoryFn, facto
     public readonly $el: ShadowRoot
     public readonly $refs: Record<string, HTMLElement> = {}
 
-
     static get observedAttributes() {
-      return propsDefs
+      return propsKeys
     }
     constructor() {
       super()
-      const props = (this._props = shallowReactive({}))
+      const propsInit = this.getProps()
+      const props = (this._props = shallowReactive(propsInit))
       currentInstance = this
       const template = setupFn.call(this, props, this)
       currentInstance = null
@@ -64,14 +73,11 @@ export function defineComponent(name: string, props: string[] | FactoryFn, facto
       })
       // Remove an instance properties that alias reactive properties which
       // might have been set before the element was upgraded.
-      for (const propName of propsDefs) {
+      for (const propName of propsKeys) {
         if (this.hasOwnProperty(propName)) {
-          // @ts-ignore
-          const v = this[propName];
-          // @ts-ignore
-          delete this[propName];
-          // @ts-ignore
-          this[propName] = v;
+          const v = (this as any)[propName];
+          delete (this as any)[propName];
+          (this as any)[propName] = v;
         }
       }
     }
@@ -122,6 +128,15 @@ export function defineComponent(name: string, props: string[] | FactoryFn, facto
       this.dispatchEvent(customEvent)
     }
 
+    getProps() {
+      // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
+      let obj: any = {}
+      for (const propName of propsKeys) {
+        obj[propName] = this.getAttribute(propName) || (this as any)[propName]
+      }
+      return obj
+    }
+
     connectedCallback() {
       this.applyDirective()
       this._m && this._m.forEach((cb) => cb())
@@ -132,13 +147,13 @@ export function defineComponent(name: string, props: string[] | FactoryFn, facto
       this.emit('hook:unmount')
     }
     attributeChangedCallback(name: string, oldValue: any, newValue: any) {
-      // @ts-ignore
       this._props[name] = newValue
     }
   }
-  for (const propName of propsDefs) {
+  for (const propName of propsKeys) {
     Object.defineProperty(Component.prototype, propName, {
       get() {
+        if (!this._props) return undefined;
         return this._props[propName];
       },
       set(v) {

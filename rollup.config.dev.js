@@ -1,12 +1,15 @@
+import path from 'path'
+import rimraf from 'rimraf'
 import cjs from '@rollup/plugin-commonjs'
-import filesize from 'rollup-plugin-filesize'
 import { terser } from 'rollup-plugin-terser'
 import replace from 'rollup-plugin-replace'
 import { babel as babelPlugin } from '@rollup/plugin-babel'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import typescript2 from 'rollup-plugin-typescript2'
+import serve from 'rollup-plugin-serve'
+import livereload from 'rollup-plugin-livereload';
 import pkg from './package.json'
-import path from "path";
+
 const resolve = () => nodeResolve({ extensions: ['.js', '.ts'] })
 const ts = () =>
   typescript2({
@@ -18,18 +21,18 @@ const ts = () =>
   })
 const babel = () => {
   const plugins =  [
-      'babel-plugin-typescript-iife-enum',
-      ['@babel/plugin-transform-typescript', { isTSX: 'preserve' }],
-      'babel-plugin-pure-calls-annotation',
-      [
-        '@babel/plugin-transform-runtime',
-        {
-          helpers: false,
-          regenerator: false,
-          useESModules: true,
-        },
-      ],
-    ]
+    'babel-plugin-typescript-iife-enum',
+    ['@babel/plugin-transform-typescript', { isTSX: 'preserve' }],
+    'babel-plugin-pure-calls-annotation',
+    [
+      '@babel/plugin-transform-runtime',
+      {
+        helpers: false,
+        regenerator: false,
+        useESModules: true,
+      },
+    ],
+  ]
 
   babelPlugin({
     plugins,
@@ -40,6 +43,8 @@ const babel = () => {
   })
 }
 
+// 本地运行之前先清除node_modules下的缓存，否则typescript二次编译时会报错
+rimraf('./node_modules/.cache', (err) => err && console.log(err))
 const createConfig = format => {
   const input = './src/index.ts'
   const isUmd = format === 'umd'
@@ -55,9 +60,15 @@ const createConfig = format => {
     ts(),
     babel(),
     replace({
-      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.NODE_ENV': JSON.stringify('development'),
     }),
-    filesize({ showBrotliSize: true }),
+    serve({
+      open: true, // 自动打开页面
+      port: 8000,
+      openPage: '/src/example.html', // 打开的页面
+      contentBase: ''
+    }),
+    livereload(),
   ]
   if (isUmd) {
     output = {
@@ -74,5 +85,5 @@ const createConfig = format => {
     plugins,
   }
 }
-console.log(process.env.arg)
-export default () => ['esm', 'cjs', 'umd'].map(createConfig)
+
+export default () => createConfig('umd')

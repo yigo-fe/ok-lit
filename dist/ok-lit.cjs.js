@@ -6,15 +6,15 @@ var litHtml = require('lit-html');
 var reactivity = require('@vue/reactivity');
 
 let currentInstance;
-function defineComponent(name, props, factory) {
+function defineComponent(name, props, setup) {
     let propsDefs = [];
     let setupFn;
     if (typeof props === 'function') {
         setupFn = props;
     }
-    else if (factory) {
+    else if (setup) {
         propsDefs = props;
-        setupFn = factory;
+        setupFn = setup;
     }
     const Component = class extends HTMLElement {
         constructor() {

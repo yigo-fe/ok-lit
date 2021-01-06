@@ -1,6 +1,9 @@
 # ok-lit 🖖🔥
 
+## npm scripts 
+`yarn serve | npm run serve` 本地运行项目
 
+`yarn build | npm run build` 打包项目
 
 ## 示例🔥
 
