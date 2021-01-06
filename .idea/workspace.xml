@@ -20,17 +20,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/rollup.config.dev.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/props.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/debug.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.cjs.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.cjs.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.esm.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.esm.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/ok-lit.umd.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.umd.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/types/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/types/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rollup.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/rollup.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rollup.config.dev.js" beforeDir="false" afterPath="$PROJECT_DIR$/rollup.config.dev.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/example.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/example.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +74,7 @@
       <workItem from="1609854524781" duration="11000" />
       <workItem from="1609855843147" duration="640000" />
       <workItem from="1609898232765" duration="207000" />
-      <workItem from="1609898456971" duration="2775000" />
+      <workItem from="1609898456971" duration="8266000" />
     </task>
     <servers />
   </component>

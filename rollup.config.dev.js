@@ -43,6 +43,7 @@ const babel = () => {
   })
 }
 
+// 本地运行之前先清除node_modules下的缓存，否则typescript二次编译时会报错
 rimraf('./node_modules/.cache', (err) => err && console.log(err))
 const createConfig = format => {
   const input = './src/index.ts'
