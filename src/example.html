@@ -1,17 +1,43 @@
-<my-component></my-component>
-
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <my-component count="1.23123" callback="function add(a,b) { return a+b }"></my-component>
+  <todo-list></todo-list>
+</body>
+</html>
 <script src="../dist/ok-lit.umd.js"></script>
 <script>
   const {
     defineComponent,
     reactive,
+    ref,
     html,
     onMounted,
     onUpdated,
-    onUnmounted
+    onUnmounted,
+    repeat,
+    classMap
   } = window.okLit
 
-  defineComponent('my-component', (props, context) => {
+  defineComponent('my-component', {
+    count: {
+      type: Number,
+      required: true,
+      transform(value) {
+        return parseInt(value)
+      }
+    },
+    callback: {
+      type: Function
+    }
+  }, (props, context) => {
     const state = reactive({
       text: 'hello',
       show: true,
@@ -84,6 +110,20 @@
       <p>X: ${props.data?.text}<p>
       <p>${state.count}</p>
       <button @click=${increase}>increase</button>
+    `
+  })
+
+  defineComponent('todo-list', () => {
+    const list = ref([{ key: 1, label: '第一项' }, { key: 2, label: '第二项' }, { key: 3, label: '第三项' }])
+
+    const classObj = {
+      selected: true
+    }
+
+    return () => html`
+      <ul class="${classMap(classObj)}">
+        ${repeat(list.value, (item) => item.key, item => html`<li>${item.label}</li>`) }
+      </ul>
     `
   })
 </script>

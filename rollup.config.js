@@ -48,7 +48,7 @@ const createConfig = format => {
     file: `dist/${pkg.name}.${format}.js`,
     exports: 'named',
   }
-  const external = isUmd ? [] : ['@vue/reactivity', 'lit-html']
+  const external = isUmd ? [] : Object.keys(pkg.dependencies)
   const plugins = [
     resolve(),
     cjs(),
@@ -74,5 +74,5 @@ const createConfig = format => {
     plugins,
   }
 }
-console.log(process.env.arg)
+
 export default () => ['esm', 'cjs', 'umd'].map(createConfig)

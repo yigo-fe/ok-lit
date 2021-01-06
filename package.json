@@ -10,7 +10,8 @@
   "unpkg": "dist/ok-lit.umd.js",
   "scripts": {
     "build": "rollup -c",
-    "serve": "rollup -c rollup.config.dev.js  --watch"
+    "serve": "rollup -c rollup.config.dev.js  --watch",
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.12.10",

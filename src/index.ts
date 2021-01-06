@@ -1,5 +1,7 @@
 import {render, TemplateResult} from 'lit-html'
 import {effect, shallowReactive} from '@vue/reactivity'
+import {getDefaultValue, PropsType, validateProp} from "./props";
+import {isFunction, toBoolean} from "./utils";
 
 type HookFn = () => unknown
 type HookName = '_bm' | '_bu' | '_u' | '_m' | '_um'
@@ -12,24 +14,17 @@ type SetupFn = (props: object, context: {
   $refs: Record<string, HTMLElement>
   emit(event: string, payload?: any): void
 }) => () => TemplateResult
-type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor
-interface PropsType {
-  [key: string]: {
-    type: PropTypes | PropTypes[]
-    default?: string | number | boolean | object | Array<any> | Function
-    required?: boolean
-    transform?: (value: string) => any
-  }
-}
 export function defineComponent(name: string, setup: SetupFn): void
 export function defineComponent(name: string, props: PropsType, setup: SetupFn): void
 export function defineComponent(name: string, props: PropsType | SetupFn, setup?: SetupFn) {
   let propsKeys: string[] = []
   let setupFn: SetupFn
-  if (typeof props === 'function') {
+  let propsConfig: PropsType = {}
+  if (isFunction(props)) {
     setupFn = props
-  } else if (typeof setup === 'function') {
+  } else if (isFunction(setup)) {
     setupFn = setup
+    propsConfig = props
     propsKeys = Object.keys(props)
   }
 
@@ -49,6 +44,9 @@ export function defineComponent(name: string, props: PropsType | SetupFn, setup?
     constructor() {
       super()
       const propsInit = this.getProps()
+      // run validate prop
+      Object.keys(propsInit).forEach(key => validateProp(key, propsConfig[key], propsInit))
+      console.log('validate props over', propsInit)
       const props = (this._props = shallowReactive(propsInit))
       currentInstance = this
       const template = setupFn.call(this, props, this)
@@ -132,7 +130,7 @@ export function defineComponent(name: string, props: PropsType | SetupFn, setup?
       // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
       let obj: any = {}
       for (const propName of propsKeys) {
-        obj[propName] = this.getAttribute(propName) || (this as any)[propName]
+        obj[propName] = this.getAttribute(propName) || (this as any)[propName] || getDefaultValue(propsConfig[propName])
       }
       return obj
     }
@@ -148,6 +146,7 @@ export function defineComponent(name: string, props: PropsType | SetupFn, setup?
     }
     attributeChangedCallback(name: string, oldValue: any, newValue: any) {
       this._props[name] = newValue
+      validateProp(name, propsConfig[name], this._props)
     }
   }
   for (const propName of propsKeys) {
@@ -158,6 +157,7 @@ export function defineComponent(name: string, props: PropsType | SetupFn, setup?
       },
       set(v) {
         this._props[propName] = v;
+        validateProp(propName, propsConfig[propName], this._props)
       }
     });
   }
@@ -168,9 +168,7 @@ export function defineComponent(name: string, props: PropsType | SetupFn, setup?
   )
 }
 
-function toBoolean(value: unknown): boolean {
-  return value === 'false' ? false : !!value
-}
+
 
 function createLifecycleMethod(name: HookName) {
   return (cb: HookFn) => {
@@ -190,3 +188,6 @@ export const onUnmounted = createLifecycleMethod('_um')
 
 export * from 'lit-html'
 export * from '@vue/reactivity'
+export * from 'lit-html/directives/repeat'
+export * from 'lit-html/directives/style-map'
+export * from 'lit-html/directives/class-map'
