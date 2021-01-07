@@ -172,9 +172,7 @@ export function defineComponent(name: string, props: PropsType | SetupFn, setup?
 
 function createLifecycleMethod(name: HookName) {
   return (cb: HookFn) => {
-    // @ts-ignore
     if (currentInstance) {
-      // @ts-ignore
       ;(currentInstance[name] || (currentInstance[name] = [])).push(cb)
     }
   }

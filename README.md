@@ -6,118 +6,136 @@
 `yarn build | npm run build` 打包项目
 
 ## 示例🔥
-
 ```html
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
 </head>
 <body>
 <my-component count="1.23123" callback="function add(a,b) { return a+b }"></my-component>
+<todo-list></todo-list>
 </body>
 </html>
 <script src="../dist/ok-lit.umd.js"></script>
 <script>
-    const {
-        defineComponent,
-        reactive,
-        html,
-        onMounted,
-        onUpdated,
-        onUnmounted
-    } = window.okLit
+  const {
+    defineComponent,
+    reactive,
+    ref,
+    html,
+    onMounted,
+    onUpdated,
+    onUnmounted,
+    repeat,
+    classMap
+  } = window.okLit
 
-    defineComponent('my-component', {
-        count: {
-            type: Number,
-            required: true,
-            transform(value) {
-                return parseInt(value)
-            }
-        },
-        callback: {
-            type: Function
-        }
-    }, (props, context) => {
-        const state = reactive({
-            text: 'hello',
-            show: true,
-            childData: {
-                text: 'hola'
-            }
-        })
-        const toggle = () => {
-            state.show = !state.show
-        }
-        const onInput = e => {
-            state.text = e.target.value
-        }
+  defineComponent('my-component', {
+    count: {
+      type: [Number, String],
+      required: true,
+      default: 1,
+      transform(value) {
+        return parseInt(value)
+      }
+    },
+    callback: {
+      type: Function
+    }
+  }, (props, context) => {
+    const state = reactive({
+      text: 'hello',
+      show: true,
+      childData: {
+        text: 'hola'
+      }
+    })
+    const toggle = () => {
+      state.show = !state.show
+    }
+    const onInput = e => {
+      state.text = e.target.value
+    }
 
-        const onIncrease = e => {
-            console.log('child increase', e.detail)
-        }
+    const onIncrease = e => {
+      console.log('child increase', e.detail)
+    }
 
-        onMounted(() => {
-            console.log(context.$refs)
-        })
-
-        onUpdated(() => {
-            console.log(context.$refs)
-        })
-
-        const mountedCallback = () => {
-            console.log('child mounted in parent', '此时并拿不到$refs.myChild')
-        }
-
-        return () => html`
-          <button @click=${toggle}>toggle child</button>
-          <p>
-          ${state.text} <input value=${state.text} @input=${onInput}>
-          </p>
-          <p v-show="${state.show}">style display v-show</p>
-          <p ref="p">A: ${state.childData.text}</p>
-          ${state.show ? html`<my-child @hook:mounted="${mountedCallback}" ref="myChild" .msg=${state.text} .data=${state.childData} @increase="${onIncrease}"></my-child>` : ``}
-        `
-        // 在defineComponent里边使用子组件传参时，使用.可以直接传入对象
+    onMounted(() => {
+      console.log(context.$refs)
     })
 
-    defineComponent('my-child', {
-        msg: {
-            type: String,
-        },
-        data: {
-            type: Object
-        }
-    }, (props, context) => {
-        const state = reactive({ count: 0 })
-        const increase = () => {
-            state.count++
-            context.emit('increase', state.count)
-        }
-        onMounted(() => {
-            console.log('child mounted')
-        })
-
-        onUpdated(() => {
-            console.log('child updated')
-        })
-
-        onUnmounted(() => {
-            console.log('html child unmounted')
-        })
-
-        return () => html`
-          <p>${props.msg}</p>
-          <p>X: ${props.data?.text}<p>
-          <p>${state.count}</p>
-          <button @click=${increase}>increase</button>
-        `
+    onUpdated(() => {
+      console.log(context.$refs)
     })
+
+    const mountedCallback = () => {
+      console.log('child mounted in parent', '此时并拿不到$refs.myChild')
+    }
+
+    return () => html`
+      <button @click=${toggle}>toggle child</button>
+      <p>
+      ${state.text} <input value=${state.text} @input=${onInput}>
+      </p>
+      <p v-show="${state.show}">style display v-show</p>
+      <p ref="p">A: ${state.childData.text}</p>
+      ${state.show ? html`<my-child @hook:mounted="${mountedCallback}" ref="myChild" .msg=${state.text} .data=${state.childData} @increase="${onIncrease}"></my-child>` : ``}
+    `
+    // 在defineComponent里边使用子组件传参时，使用.可以直接传入对象
+  })
+
+  defineComponent('my-child', {
+    msg: {
+      type: String,
+    },
+    data: {
+      type: Object
+    }
+  }, (props, context) => {
+    const state = reactive({ count: 0 })
+    const increase = () => {
+      state.count++
+      context.emit('increase', state.count)
+    }
+    onMounted(() => {
+      console.log('child mounted')
+    })
+
+    onUpdated(() => {
+      console.log('child updated')
+    })
+
+    onUnmounted(() => {
+      console.log('html child unmounted')
+    })
+
+    return () => html`
+      <p>${props.msg}</p>
+      <p>X: ${props.data?.text}<p>
+      <p>${state.count}</p>
+      <button @click=${increase}>increase</button>
+    `
+  })
+
+  defineComponent('todo-list', () => {
+    const list = ref([{ key: 1, label: '第一项' }, { key: 2, label: '第二项' }, { key: 3, label: '第三项' }])
+
+    const classObj = {
+      selected: true
+    }
+
+    return () => html`
+      <ul class="${classMap(classObj)}">
+        ${repeat(list.value, (item) => item.key, item => html`<li>${item.label}</li>`) }
+      </ul>
+    `
+  })
 </script>
 ```
 
@@ -168,35 +186,3 @@ type SetupFn = (props: object, context: {
 #### 其余api参考
 1. [lit-html](https://lit-html.polymer-project.org/guide)
 2. [@vue/reactivity](https://github.com/vuejs/vue-next/blob/master/packages/reactivity/src/index.ts)
-
-
-
-## Types🔥
-```typescript
-export declare type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor;
-export interface Prop {
-  type: PropTypes | PropTypes[];
-  default?: string | number | boolean | object | Array<any> | Function;
-  required?: boolean;
-  transform?: (value: string) => any;
-}
-export interface PropsType {
-  [key: string]: Prop;
-}
-declare type HookFn = () => unknown;
-declare type SetupFn = (props: object, context: {
-  $el: ShadowRoot;
-  $refs: Record<string, HTMLElement>;
-  emit(event: string, payload?: any): void;
-}) => () => TemplateResult;
-export declare function defineComponent(name: string, setup: SetupFn): void;
-export declare function defineComponent(name: string, props: PropsType, setup: SetupFn): void;
-export declare const onBeforeMount: (cb: HookFn) => void;
-export declare const onMounted: (cb: HookFn) => void;
-export declare const onBeforeUpdate: (cb: HookFn) => void;
-export declare const onUpdated: (cb: HookFn) => void;
-export declare const onUnmounted: (cb: HookFn) => void;
-export * from 'lit-html';
-export * from '@vue/reactivity';
-
-```

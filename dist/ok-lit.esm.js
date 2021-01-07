@@ -3,7 +3,6 @@ export * from 'lit-html';
 import { shallowReactive, effect } from '@vue/reactivity';
 export * from '@vue/reactivity';
 
-const warn = console.warn;
 const error = console.error;
 const toString = Object.prototype.toString;
 const getExactType = (arg) => toString.call(arg).slice(8, -1);
@@ -56,45 +55,82 @@ function validateProp(key, config, props) {
         }
         return;
     }
-    function isBaseType(type, isType, transform) {
-        if (!transform) {
-            transform = type;
+    function isBaseType(nowType, type, isType, transform) {
+        !transform && (transform = type);
+        config.transform && (transform = config.transform);
+        if (nowType !== type) {
+            return false;
         }
-        if (config.transform) {
-            transform = config.transform;
+        if (isType(value)) {
+            return true;
         }
-        if (config.type === type && !isType(value)) {
-            value = transform(value);
+        else {
+            const transformResult = transform(value);
+            if (type === Number && Number.isNaN(transformResult)) {
+                return false;
+            }
+            value = transformResult;
+            return true;
         }
     }
-    function isJSONType(type, isType, str) {
-        if (config.type === type && !isType(value)) {
+    function isJSONType(nowType, type, isType, str) {
+        if (nowType !== type) {
+            return false;
+        }
+        if (isType(value)) {
+            return true;
+        }
+        else {
             const transform = config.transform ?? isJSONString;
             const jsonResult = transform(value);
             if (jsonResult && isType(jsonResult)) {
                 value = jsonResult;
+                return true;
             }
-            else {
-                warn(`the ${key} is a ${str}, please give the ${str} or JSON string`);
+            str && error(`the ${key} is a ${str}, please give the ${str} or JSON string`);
+            return false;
+        }
+    }
+    function isFunctionType(nowType) {
+        if (nowType !== Function) {
+            return false;
+        }
+        if (isFunction(value)) {
+            return true;
+        }
+        else {
+            try {
+                const toFunction = (value) => {
+                    return new Function(`return ${value}`)();
+                };
+                const transform = config.transform ?? toFunction;
+                const fn = transform(value);
+                isFunction(fn) && (value = fn);
+                return true;
+            }
+            catch (e) {
+                error(e);
+                return false;
             }
         }
     }
-    isBaseType(String, isString);
-    isBaseType(Number, isNumber);
-    isBaseType(Boolean, isBoolean, toBoolean);
-    isJSONType(Object, isExactObject, 'object');
-    isJSONType(Array, isArray, 'array');
-    if (config.type === Function && !isFunction(value)) {
-        try {
-            const toFunction = (value) => {
-                return new Function(`return ${value}`)();
-            };
-            const transform = config.transform ?? toFunction;
-            const fn = transform(value);
-            isFunction(fn) && (value = fn);
+    if (config.type) {
+        const noRepeatArray = isArray(config.type) ? [...new Set(config.type)] : [config.type];
+        let transformFlag = false;
+        for (let i = 0; i < noRepeatArray.length; i++) {
+            const type = noRepeatArray[i];
+            if (isBaseType(type, String, isString)
+                || isBaseType(type, Number, isNumber)
+                || isBaseType(type, Boolean, isBoolean, toBoolean)
+                || isJSONType(type, Object, isExactObject, 'object')
+                || isJSONType(type, Array, isArray)
+                || isFunctionType(type)) {
+                transformFlag = true;
+                break;
+            }
         }
-        catch (e) {
-            console.error(e);
+        if (!transformFlag) {
+            error(`the ${key} value does not hit all type rules`);
         }
     }
     props[key] = value;
@@ -1550,7 +1586,6 @@ function defineComponent(name, props, setup) {
 }
 function createLifecycleMethod(name) {
     return (cb) => {
-        // @ts-ignore
         if (currentInstance) {
             (currentInstance[name] || (currentInstance[name] = [])).push(cb);
         }

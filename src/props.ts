@@ -4,7 +4,6 @@ import {
   isNumber,
   isBoolean,
   isString,
-  warn,
   error,
   isJSONString,
   isExactObject, isArray, isFunction
@@ -35,43 +34,80 @@ export function validateProp(key: string, config: Prop, props: { [key: string]: 
     }
     return
   }
-  function isBaseType(type: BooleanConstructor | NumberConstructor | StringConstructor, isType: Function, transform?: Function) {
-    if (!transform) {
-      transform = type
+  function isBaseType(nowType: PropTypes, type: BooleanConstructor | NumberConstructor | StringConstructor, isType: Function, transform?: Function) {
+    !transform && (transform = type)
+    config.transform && (transform = config.transform)
+    if (nowType !== type) {
+      return false
     }
-    if (config.transform) {
-      transform = config.transform
-    }
-    if (config.type === type && !isType(value)) {
-      value = transform(value)
+    if (isType(value)) {
+      return true
+    } else {
+      const transformResult = transform(value)
+      if (type === Number && Number.isNaN(transformResult)) {
+        return false
+      }
+      value = transformResult
+      return true
     }
   }
-  function isJSONType(type: ObjectConstructor | ArrayConstructor, isType: Function, str: 'object' | 'array') {
-    if (config.type === type && !isType(value)) {
+  function isJSONType(nowType: PropTypes, type: ObjectConstructor | ArrayConstructor, isType: Function, str?: 'object' | 'array') {
+    if (nowType !== type) {
+      return false
+    }
+    if (isType(value)) {
+      return true
+    } else {
       const transform = config.transform ?? isJSONString
       const jsonResult = transform(value)
       if (jsonResult && isType(jsonResult)) {
         value = jsonResult
-      } else {
-        warn(`the ${key} is a ${str}, please give the ${str} or JSON string`)
+        return true
+      }
+      str && error(`the ${key} is a ${str}, please give the ${str} or JSON string`)
+      return false
+    }
+  }
+  function isFunctionType(nowType: PropTypes) {
+    if (nowType !== Function) {
+      return false
+    }
+    if (isFunction(value)) {
+      return true
+    } else {
+      try {
+        const toFunction = (value: string) => {
+          return new Function(`return ${value}`)()
+        }
+        const transform = config.transform ?? toFunction
+        const fn = transform(value)
+        isFunction(fn) && (value = fn)
+        return true
+      } catch (e) {
+        error(e)
+        return false
       }
     }
   }
-  isBaseType(String, isString)
-  isBaseType(Number, isNumber)
-  isBaseType(Boolean, isBoolean, toBoolean)
-  isJSONType(Object, isExactObject, 'object')
-  isJSONType(Array, isArray, 'array')
-  if (config.type === Function && !isFunction(value)) {
-    try {
-      const toFunction = (value: string) => {
-        return new Function(`return ${value}`)()
+  if (config.type) {
+    const noRepeatArray = isArray(config.type) ? [...new Set(config.type)] : [config.type]
+    let transformFlag = false
+    for (let i = 0; i < noRepeatArray.length; i++) {
+      const type =noRepeatArray[i]
+      if (
+        isBaseType(type, String, isString)
+        || isBaseType(type, Number, isNumber)
+        || isBaseType(type, Boolean, isBoolean, toBoolean)
+        || isJSONType(type, Object, isExactObject, 'object')
+        || isJSONType(type, Array, isArray)
+        || isFunctionType(type)
+      ) {
+        transformFlag = true
+        break
       }
-      const transform = config.transform ?? toFunction
-      const fn = transform(value)
-      isFunction(fn) && (value = fn)
-    } catch (e) {
-      console.error(e)
+    }
+    if (!transformFlag) {
+      error(`the ${key} value does not hit all type rules`)
     }
   }
   props[key] = value

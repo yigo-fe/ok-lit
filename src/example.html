@@ -28,8 +28,9 @@
 
   defineComponent('my-component', {
     count: {
-      type: Number,
+      type: [Number, String],
       required: true,
+      default: 1,
       transform(value) {
         return parseInt(value)
       }
