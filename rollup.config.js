@@ -64,7 +64,7 @@ const createConfig = format => {
       ...output,
       name: pkg.name.replace(/-(\w)/g, (_, $1) => $1.toUpperCase()),
       // 只有umd需要压缩
-      plugins: [terser()],
+      plugins: [terser({ output: { comments: false } })],
     }
   }
   return {

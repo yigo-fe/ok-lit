@@ -6,6 +6,11 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <style>
+    .custom-css {
+        background: red;
+    }
+  </style>
 </head>
 <body>
 <my-component count="1.23123" callback="function add(a,b) { return a+b }"></my-component>
@@ -71,8 +76,10 @@
     }
 
     return () => html`
+      <link rel="stylesheet" href="./index.css">
+
       <button @click=${toggle}>toggle child</button>
-      <p>
+      <p class="custom-css">
       ${state.text} <input value=${state.text} @input=${onInput}>
       </p>
       <p v-show="${state.show}">style display v-show</p>
