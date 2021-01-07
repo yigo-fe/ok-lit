@@ -144,6 +144,33 @@
 #### 2. ref    同Vue的ref，可以通过context.$refs取到
 #### 3. 需要判断的dom可以使用三目表达式，或者在函数中定义变量，基本等同于jsx
 #### 4. 需要循环遍历的dom，可以使用map，也可以使用lit-html内置的repeat方法：Repeating templates with the repeat directive
+#### 5. 在Vue2或者HTML中，如果不想让props显示到元素的attribute上（Vue3可以直接使用v-bind，不会有该问题），可以通过js的方式给组件设置props值，仅限外部引用组件时可以这么使用，使用ok-lit开发组件时，需要在attribute上不展示的属性，请使用.attr=value代替， 例如： 
+```html
+<body>
+  <my-component></my-component>
+</body>
+<script>
+  // 外部使用组件
+  const myComponent = document.querySelector('my-component')
+  myComponent.count = 1
+  myComponent.callback = function(a, b) {
+    return a + b
+  }
+  
+  // 开发组件
+  defineComponent('test-component', () => {
+    const count = 1
+    const add = (a, b) => {
+      return a + b
+    }
+    
+    return () => html`
+      <my-component .count="${count}" .callback="${add}"></my-component>
+    `
+  })
+</script>
+```
+
 
 ## API🖖
 #### defineComponent

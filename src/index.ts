@@ -1,6 +1,6 @@
 import {render, TemplateResult} from 'lit-html'
 import {effect, shallowReactive} from '@vue/reactivity'
-import {getDefaultValue, PropsType, validateProp} from "./props";
+import {getDefaultValue, Prop, PropsType, PropTypes, validateProp} from "./props";
 import {isFunction, toBoolean} from "./utils";
 
 type HookFn = () => unknown
@@ -9,16 +9,20 @@ type Hooks = Array<HookFn>
 
 let currentInstance: any | null
 
-type SetupFn = (props: object, context: {
-  $el: ShadowRoot
-  $refs: Record<string, HTMLElement>
-  emit(event: string, payload?: any): void
-}) => () => TemplateResult
+interface SetupFn<Props extends PropsType = {}>{
+  (props: {
+    [key in keyof Props]: any
+  }, context: {
+    $el: ShadowRoot
+    $refs: Record<string, HTMLElement>
+    emit(event: string, payload?: any): void
+  }): () => TemplateResult
+}
 export function defineComponent(name: string, setup: SetupFn): void
-export function defineComponent(name: string, props: PropsType, setup: SetupFn): void
-export function defineComponent(name: string, props: PropsType | SetupFn, setup?: SetupFn) {
+export function defineComponent<Props extends PropsType = {}>(name: string, props: Props, setup: SetupFn<Props>): void
+export function defineComponent<Props extends PropsType = {}>(name: string, props: Props | SetupFn<Props>, setup?: SetupFn<Props>) {
   let propsKeys: string[] = []
-  let setupFn: SetupFn
+  let setupFn: SetupFn<Props>
   let propsConfig: PropsType = {}
   if (isFunction(props)) {
     setupFn = props

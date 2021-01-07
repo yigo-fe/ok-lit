@@ -10,7 +10,7 @@ import {
 } from "./utils";
 
 export type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor
-export interface Prop {
+export interface Prop<T = PropTypes> {
   type: PropTypes | PropTypes[]
   default?: string | number | boolean | object | Array<any> | Function
   required?: boolean

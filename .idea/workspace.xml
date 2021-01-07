@@ -22,10 +22,6 @@
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.cjs.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.cjs.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.esm.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.esm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.umd.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.umd.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/example.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/example.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/props.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/props.ts" afterDir="false" />
@@ -85,7 +81,7 @@
       <workItem from="1609855843147" duration="640000" />
       <workItem from="1609898232765" duration="207000" />
       <workItem from="1609898456971" duration="22742000" />
-      <workItem from="1609984422638" duration="4526000" />
+      <workItem from="1609984422638" duration="11316000" />
     </task>
     <servers />
   </component>
