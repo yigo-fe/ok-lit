@@ -6,7 +6,11 @@ import { babel as babelPlugin } from '@rollup/plugin-babel'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import typescript2 from 'rollup-plugin-typescript2'
 import pkg from './package.json'
-import path from "path";
+import path from 'path'
+import rimraf from "rimraf";
+import serve from "rollup-plugin-serve";
+import livereload from "rollup-plugin-livereload";
+
 const resolve = () => nodeResolve({ extensions: ['.js', '.ts'] })
 const ts = () =>
   typescript2({
@@ -39,7 +43,11 @@ const babel = () => {
     extensions: ['.js', '.ts'],
   })
 }
-
+const isDev = process.env.NODE_ENV === 'development'
+if (isDev) {
+  // 本地运行之前先清除node_modules下的缓存，否则typescript二次编译时会报错
+  rimraf('./node_modules/.cache', (err) => err && console.log(err))
+}
 const createConfig = format => {
   const input = './src/index.ts'
   const isUmd = format === 'umd'
@@ -67,6 +75,14 @@ const createConfig = format => {
       plugins: [terser({ output: { comments: false } })],
     }
   }
+  if (isDev) {
+    plugins.push(serve({
+      open: true, // 自动打开页面
+      port: 8000,
+      openPage: '/src/example.html', // 打开的页面
+      contentBase: ''
+    }), livereload())
+  }
   return {
     input,
     external,
@@ -75,4 +91,4 @@ const createConfig = format => {
   }
 }
 
-export default () => ['esm', 'cjs', 'umd'].map(createConfig)
+export default () => (isDev ? ['umd'] : ['esm', 'cjs', 'umd']).map(createConfig)

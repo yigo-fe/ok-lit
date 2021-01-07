@@ -9,8 +9,8 @@
   "module": "dist/ok-lit.esm.js",
   "unpkg": "dist/ok-lit.umd.js",
   "scripts": {
-    "build": "rollup -c",
-    "serve": "rollup -c rollup.config.dev.js  --watch",
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "serve": "cross-env NODE_ENV=development rollup -c -w",
     "prepublish": "npm run build"
   },
   "devDependencies": {
@@ -21,6 +21,7 @@
     "@rollup/plugin-node-resolve": "^11.0.1",
     "babel-plugin-pure-calls-annotation": "^0.3.1",
     "babel-plugin-typescript-iife-enum": "^0.2.1",
+    "cross-env": "^7.0.3",
     "rimraf": "^3.0.2",
     "rollup": "^2.35.1",
     "rollup-plugin-filesize": "^9.1.0",
