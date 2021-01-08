@@ -42,18 +42,18 @@ function isJSONString(value) {
 }
 
 function getDefaultValue(config) {
-    return config.default;
+    return isFunction(config.default) && config.type !== Function ? config.default() : config.default;
 }
 function validateProp(key, config, props) {
     let value = props[key];
     if (isNullOrUndefined(value)) {
-        if (config.default) {
-            value = isFunction(config.default) && config.type !== Function ? config.default() : config.default;
+        if (config.default !== undefined) {
+            value = getDefaultValue(config);
         }
         else if (config.required) {
             error(`props ${key} is required!`);
+            return;
         }
-        return;
     }
     function isBaseType(nowType, type, isType, transform) {
         !transform && (transform = type);
@@ -245,7 +245,7 @@ function defineComponent(name, props, setup) {
             // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
             let obj = {};
             for (const propName of propsKeys) {
-                obj[propName] = this.getAttribute(propName) || this[propName] || getDefaultValue(propsConfig[propName]);
+                obj[propName] = this.getAttribute(propName) || this[propName] || undefined;
             }
             return obj;
         }
