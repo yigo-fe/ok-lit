@@ -27,8 +27,6 @@
     onMounted,
     onUpdated,
     onUnmounted,
-    repeat,
-    classMap
   } = window.okLit
 
 
@@ -43,6 +41,10 @@
     },
     callback: {
       type: Function
+    },
+    test: {
+      type: Array,
+      default: () => []
     }
   }, (props, context) => {
     const state = reactive({
@@ -122,17 +124,17 @@
     `
   })
 
-  defineComponent('todo-list', () => {
-    const list = ref([{ key: 1, label: '第一项' }, { key: 2, label: '第二项' }, { key: 3, label: '第三项' }])
-
-    const classObj = {
-      selected: true
-    }
-
-    return () => html`
-      <ul class="${classMap(classObj)}">
-        ${repeat(list.value, (item) => item.key, item => html`<li>${item.label}</li>`) }
-      </ul>
-    `
-  })
+  // defineComponent('todo-list', () => {
+  //   const list = ref([{ key: 1, label: '第一项' }, { key: 2, label: '第二项' }, { key: 3, label: '第三项' }])
+  //
+  //   const classObj = {
+  //     selected: true
+  //   }
+  //
+  //   return () => html`
+  //     <ul class="${classMap(classObj)}">
+  //       ${repeat(list.value, (item) => item.key, item => html`<li>${item.label}</li>`) }
+  //     </ul>
+  //   `
+  // })
 </script>

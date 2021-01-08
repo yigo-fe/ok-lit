@@ -1,6 +1,6 @@
 import { render, TemplateResult } from 'lit-html'
 import { effect, shallowReactive } from '@vue/reactivity'
-import { getDefaultValue, PropsType, PropTypes, validateProp } from './props'
+import { getDefaultValue, PropType, PropsType, PropTypes, validateProp } from './props'
 import { isFunction, toBoolean } from './utils'
 
 type HookFn = () => unknown
@@ -9,13 +9,11 @@ type Hooks = Array<HookFn>
 
 let currentInstance: any | null
 
-export declare type PropType<T> = T
-
 type GetPropType<T> = T extends ObjectConstructor ? Record<string, any> : T extends BooleanConstructor ? boolean : T extends NumberConstructor ? number : T extends StringConstructor ? string : T extends ArrayConstructor ? Array<any> : T extends FunctionConstructor ? Function : PropType<T>
 
 interface SetupFn<Props extends PropsType = {}>{
   (props: {
-    [key in keyof Props]: Props[key]['type'] extends PropType<Props[key]['type']> ? PropType<Props[key]['type']> :Props[key]['type'] extends Array<PropTypes> ? GetPropType<Props[key]['type'][0]> : GetPropType<Props[key]['type']>
+    [key in keyof Props]: Props[key]['type'] extends PropType ? Props[key]['type'] :Props[key]['type'] extends Array<PropTypes> ? GetPropType<Props[key]['type'][0]> : GetPropType<Props[key]['type']>
   }, context: HTMLElement & {
     $el: ShadowRoot
     $refs: Record<string, HTMLElement>
@@ -138,7 +136,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
       let obj: any = {}
       for (const propName of propsKeys) {
-        obj[propName] = this.getAttribute(propName) || (this as any)[propName] || getDefaultValue(propsConfig[propName])
+        obj[propName] = this.getAttribute(propName) || (this as any)[propName] || undefined
       }
       return obj
     }
@@ -192,3 +190,6 @@ export const onUnmounted = createLifecycleMethod('_um')
 
 export * from 'lit-html'
 export * from '@vue/reactivity'
+export type {
+  PropType
+}

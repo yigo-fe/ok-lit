@@ -9,10 +9,10 @@ import {
   isExactObject, isArray, isFunction
 } from "./utils";
 
-export type PropType<T> = T
+export type PropType<T = any> = T
 export type PropTypes<T = any> = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor | PropType<T>
 export interface Prop<T = PropTypes> {
-  type: PropTypes | PropTypes[] | PropType<T>
+  type: PropTypes<T> | PropTypes<T>[]
   default?: string | number | boolean | object | Array<any> | Function
   required?: boolean
   transform?: (value: string) => any
@@ -22,18 +22,18 @@ export interface PropsType {
 }
 
 export function getDefaultValue(config: Prop) {
-  return config.default
+  return isFunction(config.default) && config.type !== Function ? config.default() : config.default
 }
 
 export function validateProp(key: string, config: Prop, props: { [key: string]: any }) {
   let value = props[key]
   if (isNullOrUndefined(value)) {
-    if (config.default) {
-      value = isFunction(config.default) && config.type !== Function ? config.default() : config.default
+    if (config.default !== undefined) {
+      value = getDefaultValue(config)
     } else if (config.required) {
       error(`props ${key} is required!`)
+      return
     }
-    return
   }
   function isBaseType(nowType: PropTypes, type: BooleanConstructor | NumberConstructor | StringConstructor, isType: Function, transform?: Function) {
     !transform && (transform = type)
