@@ -158,13 +158,12 @@ function defineComponent(name, props, setup) {
             this._m = [];
             this._um = [];
             this.$refs = {};
-            const propsInit = this.getProps();
+            const propsInit = this._getProps();
             // run validate prop
             Object.keys(propsInit).forEach(key => validateProp(key, propsConfig[key], propsInit));
-            console.log('validate props over', propsInit);
             const props = (this._props = shallowReactive(propsInit));
             currentInstance = this;
-            const template = setupFn.call(this, props, this);
+            const template = setupFn.call(null, props, this);
             currentInstance = null;
             this._bm && this._bm.forEach((cb) => cb());
             this.emit('hook:beforeMount');
@@ -177,7 +176,7 @@ function defineComponent(name, props, setup) {
                 }
                 render(template(), this.$el);
                 if (isMounted) {
-                    this.applyDirective();
+                    this._applyDirective();
                     this._u && this._u.forEach((cb) => cb());
                     this.emit('hook:updated');
                 }
@@ -205,11 +204,11 @@ function defineComponent(name, props, setup) {
             });
             this.dispatchEvent(customEvent);
         }
-        applyDirective() {
-            this.applyVShow();
-            this.applyRef();
+        _applyDirective() {
+            this._applyVShow();
+            this._applyRef();
         }
-        applyRef() {
+        _applyRef() {
             const refs = this.$el.querySelectorAll('[ref]');
             const refKeys = [];
             Array.from(refs).forEach((el) => {
@@ -225,7 +224,7 @@ function defineComponent(name, props, setup) {
                 }
             });
         }
-        applyVShow() {
+        _applyVShow() {
             const vShows = this.$el.querySelectorAll('[v-show]');
             Array.from(vShows).forEach((el) => {
                 const show = toBoolean(el.getAttribute('v-show'));
@@ -241,7 +240,7 @@ function defineComponent(name, props, setup) {
                 }
             });
         }
-        getProps() {
+        _getProps() {
             // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
             let obj = {};
             for (const propName of propsKeys) {
@@ -250,7 +249,7 @@ function defineComponent(name, props, setup) {
             return obj;
         }
         connectedCallback() {
-            this.applyDirective();
+            this._applyDirective();
             this._m && this._m.forEach((cb) => cb());
             this.emit('hook:mounted');
         }

@@ -62,19 +62,19 @@
     }
 
     const onIncrease = e => {
-      console.log('child increase', e.detail)
+      // console.log('child increase', e.detail)
     }
 
     onMounted(() => {
-      console.log(context.$refs)
+      console.log(context, context.$el, context.$refs)
     })
 
     onUpdated(() => {
-      console.log(context.$refs)
+      // console.log(context.$refs)
     })
 
     const mountedCallback = () => {
-      console.log('child mounted in parent', '此时并拿不到$refs.myChild')
+      // console.log('child mounted in parent', '此时并拿不到$refs.myChild')
     }
 
     return () => html`
@@ -105,7 +105,7 @@
       context.emit('increase', state.count)
     }
     onMounted(() => {
-      console.log('child mounted')
+      // console.log('child mounted')
     })
 
     onUpdated(() => {

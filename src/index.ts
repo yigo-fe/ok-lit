@@ -49,13 +49,12 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
     }
     constructor() {
       super()
-      const propsInit = this.getProps()
+      const propsInit = this._getProps()
       // run validate prop
       Object.keys(propsInit).forEach(key => validateProp(key, propsConfig[key], propsInit))
-      console.log('validate props over', propsInit)
       const props = (this._props = shallowReactive(propsInit))
       currentInstance = this
-      const template = setupFn.call(this, props, this)
+      const template = setupFn.call(null, props, this)
       currentInstance = null
       this._bm && this._bm.forEach((cb) => cb())
       this.emit('hook:beforeMount')
@@ -68,7 +67,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
         }
         render(template(), this.$el)
         if (isMounted) {
-          this.applyDirective()
+          this._applyDirective()
           this._u && this._u.forEach((cb) => cb())
           this.emit('hook:updated')
         } else {
@@ -94,12 +93,12 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       this.dispatchEvent(customEvent)
     }
 
-    private applyDirective() {
-      this.applyVShow()
-      this.applyRef()
+    private _applyDirective() {
+      this._applyVShow()
+      this._applyRef()
     }
 
-    private applyRef() {
+    private _applyRef() {
       const refs = this.$el.querySelectorAll<HTMLElement>('[ref]')
       const refKeys: string[] = []
       Array.from(refs).forEach((el) => {
@@ -116,7 +115,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       })
     }
 
-    private applyVShow() {
+    private _applyVShow() {
       const vShows = this.$el.querySelectorAll<HTMLElement& { __prevShow: boolean, __prevDisplay: string }>('[v-show]')
       Array.from(vShows).forEach((el) => {
         const show = toBoolean(el.getAttribute('v-show'))
@@ -132,7 +131,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       })
     }
 
-    private getProps() {
+    private _getProps() {
       // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
       let obj: any = {}
       for (const propName of propsKeys) {
@@ -142,7 +141,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
     }
 
     connectedCallback() {
-      this.applyDirective()
+      this._applyDirective()
       this._m && this._m.forEach((cb) => cb())
       this.emit('hook:mounted')
     }
