@@ -1,6 +1,7 @@
-export declare type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor;
+export declare type PropType<T> = T;
+export declare type PropTypes<T = any> = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor | PropType<T>;
 export interface Prop<T = PropTypes> {
-    type: PropTypes | PropTypes[];
+    type: PropTypes | PropTypes[] | PropType<T>;
     default?: string | number | boolean | object | Array<any> | Function;
     required?: boolean;
     transform?: (value: string) => any;

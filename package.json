@@ -1,6 +1,6 @@
 {
   "name": "ok-lit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "proof of concept custom elements framework powered by @vue/reactivity + lit-html",
   "author": "hcg1023",
   "license": "MIT",
@@ -11,7 +11,8 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production rollup -c",
     "serve": "cross-env NODE_ENV=development rollup -c -w",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "postversion": "git add . && git commit -m 'feat: update version' && git push"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.12.10",
