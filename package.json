@@ -5,7 +5,7 @@
   "author": "hcg1023",
   "license": "MIT",
   "types": "dist/types/index.d.ts",
-  "main": "dist/ok-lit.cjs.js",
+  "main": "dist/ok-litgit.cjs.js",
   "module": "dist/ok-lit.esm.js",
   "unpkg": "dist/ok-lit.umd.js",
   "scripts": {
