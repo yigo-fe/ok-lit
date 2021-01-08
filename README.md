@@ -180,6 +180,20 @@ declare function defineComponent(name: string, props: PropsType | SetupFn, setup
 ```
 
 #### props
+Props会有一定的类型推导能力，如果需要指定精确的类型，请使用PropType
+```typescript
+import { PropType, defineComponent } from 'ok-lit'
+
+interface Item {
+  name: string
+  type: string
+}
+defineComponent('my-component', { prop: {
+  type: Array as unknown as PropType<Array<Item>>
+  } }, props => {
+  console.log(props.prop[0].name) // 可以正确的进行typescript类型推导
+})
+```
 ```typescript
 export declare type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor;
 export interface Prop {

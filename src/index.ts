@@ -1,7 +1,7 @@
-import {render, TemplateResult} from 'lit-html'
-import {effect, shallowReactive} from '@vue/reactivity'
-import {getDefaultValue, Prop, PropsType, PropTypes, validateProp} from "./props";
-import {isFunction, toBoolean} from "./utils";
+import { render, TemplateResult } from 'lit-html'
+import { effect, shallowReactive } from '@vue/reactivity'
+import { getDefaultValue, PropsType, PropTypes, validateProp } from './props'
+import { isFunction, toBoolean } from './utils'
 
 type HookFn = () => unknown
 type HookName = '_bm' | '_bu' | '_u' | '_m' | '_um'
@@ -9,18 +9,22 @@ type Hooks = Array<HookFn>
 
 let currentInstance: any | null
 
+export declare type PropType<T> = T
+
+type GetPropType<T> = T extends ObjectConstructor ? Record<string, any> : T extends BooleanConstructor ? boolean : T extends NumberConstructor ? number : T extends StringConstructor ? string : T extends ArrayConstructor ? Array<any> : T extends FunctionConstructor ? Function : PropType<T>
+
 interface SetupFn<Props extends PropsType = {}>{
   (props: {
-    [key in keyof Props]: any
-  }, context: {
+    [key in keyof Props]: Props[key]['type'] extends PropType<Props[key]['type']> ? PropType<Props[key]['type']> :Props[key]['type'] extends Array<PropTypes> ? GetPropType<Props[key]['type'][0]> : GetPropType<Props[key]['type']>
+  }, context: HTMLElement & {
     $el: ShadowRoot
     $refs: Record<string, HTMLElement>
     emit(event: string, payload?: any): void
   }): () => TemplateResult
 }
-export function defineComponent(name: string, setup: SetupFn): void
-export function defineComponent<Props extends PropsType = {}>(name: string, props: Props, setup: SetupFn<Props>): void
-export function defineComponent<Props extends PropsType = {}>(name: string, props: Props | SetupFn<Props>, setup?: SetupFn<Props>) {
+export function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn): void
+export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props, setup: SetupFn<Props>): void
+export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props | SetupFn<Props>, setup?: SetupFn<Props>) {
   let propsKeys: string[] = []
   let setupFn: SetupFn<Props>
   let propsConfig: PropsType = {}
@@ -84,12 +88,20 @@ export function defineComponent<Props extends PropsType = {}>(name: string, prop
       }
     }
 
-    applyDirective() {
+    public emit(event: string, payload?: any) {
+      const customEvent = new CustomEvent(event, {
+        bubbles: true,
+        detail: payload,
+      });
+      this.dispatchEvent(customEvent)
+    }
+
+    private applyDirective() {
       this.applyVShow()
       this.applyRef()
     }
 
-    applyRef() {
+    private applyRef() {
       const refs = this.$el.querySelectorAll<HTMLElement>('[ref]')
       const refKeys: string[] = []
       Array.from(refs).forEach((el) => {
@@ -106,7 +118,7 @@ export function defineComponent<Props extends PropsType = {}>(name: string, prop
       })
     }
 
-    applyVShow() {
+    private applyVShow() {
       const vShows = this.$el.querySelectorAll<HTMLElement& { __prevShow: boolean, __prevDisplay: string }>('[v-show]')
       Array.from(vShows).forEach((el) => {
         const show = toBoolean(el.getAttribute('v-show'))
@@ -122,15 +134,7 @@ export function defineComponent<Props extends PropsType = {}>(name: string, prop
       })
     }
 
-    emit(event: string, payload?: any) {
-      const customEvent = new CustomEvent(event, {
-        bubbles: true,
-        detail: payload,
-      });
-      this.dispatchEvent(customEvent)
-    }
-
-    getProps() {
+    private getProps() {
       // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
       let obj: any = {}
       for (const propName of propsKeys) {
@@ -172,8 +176,6 @@ export function defineComponent<Props extends PropsType = {}>(name: string, prop
   )
 }
 
-
-
 function createLifecycleMethod(name: HookName) {
   return (cb: HookFn) => {
     if (currentInstance) {
@@ -190,6 +192,3 @@ export const onUnmounted = createLifecycleMethod('_um')
 
 export * from 'lit-html'
 export * from '@vue/reactivity'
-export * from 'lit-html/directives/repeat'
-export * from 'lit-html/directives/style-map'
-export * from 'lit-html/directives/class-map'

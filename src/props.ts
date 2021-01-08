@@ -9,9 +9,10 @@ import {
   isExactObject, isArray, isFunction
 } from "./utils";
 
-export type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor
+export type PropType<T> = T
+export type PropTypes<T = any> = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor | PropType<T>
 export interface Prop<T = PropTypes> {
-  type: PropTypes | PropTypes[]
+  type: PropTypes | PropTypes[] | PropType<T>
   default?: string | number | boolean | object | Array<any> | Function
   required?: boolean
   transform?: (value: string) => any
