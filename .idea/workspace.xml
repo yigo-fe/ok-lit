@@ -20,12 +20,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.cjs.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.cjs.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.esm.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.esm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.umd.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.umd.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/types/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/types/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/types/props.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/types/props.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

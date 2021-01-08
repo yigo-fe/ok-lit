@@ -11,8 +11,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production rollup -c",
     "serve": "cross-env NODE_ENV=development rollup -c -w",
-    "prepublish": "npm run build",
-    "postversion": "git add . && git commit -m 'feat: update version' && git push"
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.12.10",
