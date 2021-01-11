@@ -1,6 +1,6 @@
 import { render, TemplateResult } from 'lit-html'
 import { effect, shallowReactive } from '@vue/reactivity'
-import { getDefaultValue, PropType, PropsType, PropTypes, validateProp } from './props'
+import { PropType, PropsType, PropTypes, validateProp } from './props'
 import { isFunction, toBoolean } from './utils'
 
 type HookFn = () => unknown
@@ -22,6 +22,7 @@ interface SetupFn<Props extends PropsType = {}>{
 }
 export function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn): void
 export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props, setup: SetupFn<Props>): void
+
 export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props | SetupFn<Props>, setup?: SetupFn<Props>) {
   let propsKeys: string[] = []
   let setupFn: SetupFn<Props>
