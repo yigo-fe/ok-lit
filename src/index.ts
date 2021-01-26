@@ -16,7 +16,7 @@ interface SetupFn<Props extends PropsType = {}>{
     [key in keyof Props]: Props[key]['type'] extends PropType ? Props[key]['type'] :Props[key]['type'] extends Array<PropTypes> ? GetPropType<Props[key]['type'][0]> : GetPropType<Props[key]['type']>
   }, context: HTMLElement & {
     $el: ShadowRoot
-    $refs: Record<string, HTMLElement>
+    $refs: Record<string, HTMLElement | HTMLElement[]>
     emit(event: string, payload?: any): void
   }): () => TemplateResult
 }
@@ -43,7 +43,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
     private readonly _m: Hooks = []
     private readonly _um: Hooks = []
     public readonly $el: ShadowRoot
-    public readonly $refs: Record<string, HTMLElement> = {}
+    public $refs: Record<string, HTMLElement | HTMLElement[]> = {}
 
     static get observedAttributes() {
       return propsKeys
@@ -101,17 +101,17 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
 
     private _applyRef() {
       const refs = this.$el.querySelectorAll<HTMLElement>('[ref]')
-      const refKeys: string[] = []
+      this.$refs = {}
       Array.from(refs).forEach((el) => {
         const refKey = el.getAttribute('ref') as string
-        refKeys.push(refKey)
-        if (this.$refs[refKey] !== el) {
+        if (this.$refs[refKey]) {
+          if (Array.isArray(this.$refs[refKey])) {
+            ;(this.$refs[refKey] as HTMLElement[]).push(el)
+          } else {
+            this.$refs[refKey] = [(this.$refs[refKey] as HTMLElement), el]
+          }
+        } else {
           this.$refs[refKey] = el
-        }
-      })
-      Object.keys(this.$refs).forEach(key => {
-        if (!refKeys.includes(key)) {
-          delete this.$refs[key]
         }
       })
     }

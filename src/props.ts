@@ -33,6 +33,8 @@ export function validateProp(key: string, config: Prop, props: { [key: string]: 
     } else if (config.required) {
       error(`props ${key} is required!`)
       return
+    } else {
+      return
     }
   }
   function isBaseType(nowType: PropTypes, type: BooleanConstructor | NumberConstructor | StringConstructor, isType: Function, transform?: Function) {

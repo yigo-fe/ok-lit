@@ -5,7 +5,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var litHtml = require('lit-html');
 var reactivity = require('@vue/reactivity');
 
-const error = console.error;
 const toString = Object.prototype.toString;
 const getExactType = (arg) => toString.call(arg).slice(8, -1);
 function isType(type) {
@@ -53,7 +52,9 @@ function validateProp(key, config, props) {
             value = getDefaultValue(config);
         }
         else if (config.required) {
-            error(`props ${key} is required!`);
+            return;
+        }
+        else {
             return;
         }
     }
@@ -89,7 +90,6 @@ function validateProp(key, config, props) {
                 value = jsonResult;
                 return true;
             }
-            str && error(`the ${key} is a ${str}, please give the ${str} or JSON string`);
             return false;
         }
     }
@@ -111,28 +111,22 @@ function validateProp(key, config, props) {
                 return true;
             }
             catch (e) {
-                error(e);
                 return false;
             }
         }
     }
     if (config.type) {
         const noRepeatArray = isArray(config.type) ? [...new Set(config.type)] : [config.type];
-        let transformFlag = false;
         for (let i = 0; i < noRepeatArray.length; i++) {
             const type = noRepeatArray[i];
             if (isBaseType(type, String, isString)
                 || isBaseType(type, Number, isNumber)
                 || isBaseType(type, Boolean, isBoolean, toBoolean)
-                || isJSONType(type, Object, isExactObject, 'object')
+                || isJSONType(type, Object, isExactObject)
                 || isJSONType(type, Array, isArray)
                 || isFunctionType(type)) {
-                transformFlag = true;
                 break;
             }
-        }
-        if (!transformFlag) {
-            error(`the ${key} value does not hit all type rules`);
         }
     }
     props[key] = value;
@@ -212,17 +206,19 @@ function defineComponent(name, props, setup) {
         }
         _applyRef() {
             const refs = this.$el.querySelectorAll('[ref]');
-            const refKeys = [];
+            this.$refs = {};
             Array.from(refs).forEach((el) => {
                 const refKey = el.getAttribute('ref');
-                refKeys.push(refKey);
-                if (this.$refs[refKey] !== el) {
-                    this.$refs[refKey] = el;
+                if (this.$refs[refKey]) {
+                    if (Array.isArray(this.$refs[refKey])) {
+                        this.$refs[refKey].push(el);
+                    }
+                    else {
+                        this.$refs[refKey] = [this.$refs[refKey], el];
+                    }
                 }
-            });
-            Object.keys(this.$refs).forEach(key => {
-                if (!refKeys.includes(key)) {
-                    delete this.$refs[key];
+                else {
+                    this.$refs[refKey] = el;
                 }
             });
         }

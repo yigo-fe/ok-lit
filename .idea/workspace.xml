@@ -21,10 +21,16 @@
   <component name="ChangeListManager">
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/ok-lit.cjs.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.cjs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/ok-lit.esm.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.esm.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/ok-lit.umd.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.umd.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/types/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/types/index.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/example.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/example.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/props.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/props.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,8 +91,21 @@
       <workItem from="1610010792522" duration="2897000" />
       <workItem from="1610073688774" duration="5395000" />
       <workItem from="1610158720216" duration="4651000" />
-      <workItem from="1610359414677" duration="330000" />
+      <workItem from="1610359414677" duration="1135000" />
+      <workItem from="1610435956846" duration="1453000" />
+      <workItem from="1610534605352" duration="1117000" />
+      <workItem from="1611022437066" duration="16000" />
+      <workItem from="1611047236787" duration="615000" />
+      <workItem from="1611647728640" duration="566000" />
     </task>
+    <task id="LOCAL-00001" summary="feat: 编写Readme">
+      <created>1610359773997</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1610359773997</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -103,6 +122,10 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: 编写Readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 编写Readme" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

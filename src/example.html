@@ -79,7 +79,7 @@
 
     return () => html`
       <link rel="stylesheet" href="./index.css">
-
+      ${[1,2,3,4].map(item => html`<div ref="listItem">${item}</div>`)}
       <button @click=${toggle}>toggle child</button>
       <p class="custom-css">
       ${state.text} <input value=${state.text} @input=${onInput}>

@@ -1,5 +1,6 @@
-export const warn = console.warn
-export const error = console.error
+const emptyFn = () => {}
+export const warn = process.env.NODE_ENV === 'development' ? console.warn : emptyFn
+export const error = process.env.NODE_ENV === 'development' ? console.error : emptyFn
 const toString = Object.prototype.toString
 const getExactType = (arg: unknown) => toString.call(arg).slice(8, -1)
 function isType<T>(type: string): (arg: unknown) => arg is T {

@@ -7,7 +7,7 @@ interface SetupFn<Props extends PropsType = {}> {
         [key in keyof Props]: Props[key]['type'] extends PropType ? Props[key]['type'] : Props[key]['type'] extends Array<PropTypes> ? GetPropType<Props[key]['type'][0]> : GetPropType<Props[key]['type']>;
     }, context: HTMLElement & {
         $el: ShadowRoot;
-        $refs: Record<string, HTMLElement>;
+        $refs: Record<string, HTMLElement | HTMLElement[]>;
         emit(event: string, payload?: any): void;
     }): () => TemplateResult;
 }
