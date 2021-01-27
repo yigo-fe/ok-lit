@@ -1,6 +1,6 @@
 {
   "name": "ok-lit",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "proof of concept custom elements framework powered by @vue/reactivity + lit-html",
   "author": "hcg1023",
   "license": "MIT",
