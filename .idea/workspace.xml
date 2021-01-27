@@ -21,16 +21,10 @@
   <component name="ChangeListManager">
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.cjs.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.cjs.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.esm.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.esm.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/ok-lit.umd.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.umd.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/types/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/types/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/example.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/example.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/props.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/props.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +90,8 @@
       <workItem from="1610534605352" duration="1117000" />
       <workItem from="1611022437066" duration="16000" />
       <workItem from="1611047236787" duration="615000" />
-      <workItem from="1611647728640" duration="566000" />
+      <workItem from="1611647728640" duration="697000" />
+      <workItem from="1611744409813" duration="1962000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 编写Readme">
       <created>1610359773997</created>

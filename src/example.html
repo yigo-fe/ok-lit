@@ -24,6 +24,7 @@
     reactive,
     ref,
     html,
+    watch,
     onMounted,
     onUpdated,
     onUnmounted,
@@ -54,6 +55,11 @@
         text: 'hola'
       }
     })
+
+    watch([() => state.text, () => state.show], (newValue, oldValue) => {
+      console.log('watch', newValue, oldValue)
+    })
+
     const toggle = () => {
       state.show = !state.show
     }
@@ -66,7 +72,7 @@
     }
 
     onMounted(() => {
-      console.log(context, context.$el, context.$refs)
+      // console.log(context, context.$el, context.$refs)
     })
 
     onUpdated(() => {
@@ -109,11 +115,11 @@
     })
 
     onUpdated(() => {
-      console.log('child updated')
+      // console.log('child updated')
     })
 
     onUnmounted(() => {
-      console.log('html child unmounted')
+      // console.log('html child unmounted')
     })
 
     return () => html`

@@ -20,4 +20,5 @@ export declare const onUpdated: (cb: HookFn) => void;
 export declare const onUnmounted: (cb: HookFn) => void;
 export * from 'lit-html';
 export * from '@vue/reactivity';
+export * from './watch';
 export type { PropType };

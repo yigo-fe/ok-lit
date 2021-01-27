@@ -190,6 +190,7 @@ export const onUnmounted = createLifecycleMethod('_um')
 
 export * from 'lit-html'
 export * from '@vue/reactivity'
+export * from './watch'
 export type {
   PropType
 }
