@@ -21,9 +21,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ok-lit.umd.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.umd.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/example.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/example.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +90,7 @@
       <workItem from="1611647728640" duration="697000" />
       <workItem from="1611744409813" duration="2173000" />
       <workItem from="1611817248405" duration="170000" />
-      <workItem from="1611822759538" duration="3207000" />
+      <workItem from="1611822759538" duration="3377000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 编写Readme">
       <created>1610359773997</created>
