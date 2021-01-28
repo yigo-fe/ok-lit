@@ -2,7 +2,7 @@
   "name": "ok-lit",
   "version": "1.1.1",
   "description": "proof of concept custom elements framework powered by @vue/reactivity + lit-html",
-  "author": "hcg1023",
+  "author": "hcg1023 <2293885211@qq.com> (haochenguang.cn)",
   "license": "MIT",
   "types": "dist/types/index.d.ts",
   "main": "dist/ok-litgit.cjs.js",
@@ -12,6 +12,11 @@
     "build": "cross-env NODE_ENV=production rollup -c",
     "serve": "cross-env NODE_ENV=development rollup -c -w",
     "preversion": "npm run build && git add . && git commit -m 'npm upgrade version'"
+  },
+  "homepage": "https://github.com/yigo-fe/ok-lit/blob/master/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yigo-fe/ok-lit"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

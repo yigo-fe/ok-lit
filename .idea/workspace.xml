@@ -52,7 +52,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ok-wc-ui" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../model-driven-front" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -90,7 +90,8 @@
       <workItem from="1611647728640" duration="697000" />
       <workItem from="1611744409813" duration="2173000" />
       <workItem from="1611817248405" duration="170000" />
-      <workItem from="1611822759538" duration="3377000" />
+      <workItem from="1611822759538" duration="3470000" />
+      <workItem from="1611829336832" duration="344000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 编写Readme">
       <created>1610359773997</created>
