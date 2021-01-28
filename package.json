@@ -11,7 +11,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production rollup -c",
     "serve": "cross-env NODE_ENV=development rollup -c -w",
-    "prepublish": "npm run build"
+    "preversion": "npm run build && git add ."
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

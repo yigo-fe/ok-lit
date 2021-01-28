@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-<my-component count="1.23123" callback="function add(a,b) { return a+b }"></my-component>
+<my-component count="1.23123" callback="function add(a,b) {  console.log(a, b);  return a+b }"></my-component>
   <todo-list></todo-list>
 </body>
 </html>
@@ -89,6 +89,7 @@
     return () => html`
       <link rel="stylesheet" href="./index.css">
       <h1>${props.count}</h1>
+      <button @click="${() => props.callback(1,2)}">call the props.callback</button>
       ${[1,2,3,4].map(item => html`<div ref="listItem">${item}</div>`)}
       <button @click=${toggle}>toggle child</button>
       <p class="custom-css">
