@@ -5,6 +5,7 @@ export interface Prop<T = PropTypes> {
     default?: string | number | boolean | object | Array<any> | Function;
     required?: boolean;
     transform?: (value: string) => any;
+    validator?: (value: unknown) => boolean | never | Promise<boolean>;
 }
 export interface PropsType {
     [key: string]: Prop;

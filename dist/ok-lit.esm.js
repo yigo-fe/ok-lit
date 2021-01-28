@@ -1,8 +1,9 @@
 import { render } from 'lit-html';
 export * from 'lit-html';
-import { shallowReactive, effect } from '@vue/reactivity';
+import { stop, isRef, isReactive, effect, shallowReactive } from '@vue/reactivity';
 export * from '@vue/reactivity';
 
+const error = console.error;
 const toString = Object.prototype.toString;
 const getExactType = (arg) => toString.call(arg).slice(8, -1);
 function isType(type) {
@@ -43,13 +44,16 @@ function isJSONString(value) {
 function getDefaultValue(config) {
     return isFunction(config.default) && config.type !== Function ? config.default() : config.default;
 }
+const boolFn = () => true;
 function validateProp(key, config, props) {
+    const { default: defaultValue, required, validator, transform: userTransform } = config;
     let value = props[key];
     if (isNullOrUndefined(value)) {
-        if (config.default !== undefined) {
+        if (defaultValue !== undefined) {
             value = getDefaultValue(config);
         }
-        else if (config.required) {
+        else if (required) {
+            error(`props ${key} is required!`);
             return;
         }
         else {
@@ -58,7 +62,7 @@ function validateProp(key, config, props) {
     }
     function isBaseType(nowType, type, isType, transform) {
         !transform && (transform = type);
-        config.transform && (transform = config.transform);
+        userTransform && (transform = userTransform);
         if (nowType !== type) {
             return false;
         }
@@ -82,12 +86,13 @@ function validateProp(key, config, props) {
             return true;
         }
         else {
-            const transform = config.transform ?? isJSONString;
+            const transform = userTransform ?? isJSONString;
             const jsonResult = transform(value);
             if (jsonResult && isType(jsonResult)) {
                 value = jsonResult;
                 return true;
             }
+            str && error(`the ${key} is a ${str}, please give the ${str} or JSON string`);
             return false;
         }
     }
@@ -103,31 +108,232 @@ function validateProp(key, config, props) {
                 const toFunction = (value) => {
                     return new Function(`return ${value}`)();
                 };
-                const transform = config.transform ?? toFunction;
+                const transform = userTransform ?? toFunction;
                 const fn = transform(value);
                 isFunction(fn) && (value = fn);
                 return true;
             }
             catch (e) {
+                error(e);
                 return false;
             }
         }
     }
     if (config.type) {
         const noRepeatArray = isArray(config.type) ? [...new Set(config.type)] : [config.type];
+        let transformFlag = false;
         for (let i = 0; i < noRepeatArray.length; i++) {
             const type = noRepeatArray[i];
             if (isBaseType(type, String, isString)
                 || isBaseType(type, Number, isNumber)
                 || isBaseType(type, Boolean, isBoolean, toBoolean)
-                || isJSONType(type, Object, isExactObject)
+                || isJSONType(type, Object, isExactObject, 'object')
                 || isJSONType(type, Array, isArray)
                 || isFunctionType(type)) {
+                transformFlag = true;
                 break;
             }
         }
+        if (!transformFlag) {
+            error(`the ${key} value does not hit all type rules`);
+        }
     }
     props[key] = value;
+    callValidator(validator, key, value);
+}
+async function callValidator(validator, key, value) {
+    const validatorFn = validator ?? boolFn;
+    let validateResult;
+    try {
+        validateResult = await validatorFn(value);
+    }
+    catch (err) {
+        error(err.message);
+    }
+    if (!validateResult) {
+        error(`the props.${key} validate error`);
+    }
+}
+
+/**
+ * Make a map and return a function for checking if a key
+ * is in that map.
+ * IMPORTANT: all calls of this function must be prefixed with
+ * \/\*#\_\_PURE\_\_\*\/
+ * So that rollup can tree-shake them if necessary.
+ */
+const EMPTY_OBJ =  {};
+const NOOP = () => { };
+const isArray$1 = Array.isArray;
+const isMap = (val) => toTypeString(val) === '[object Map]';
+const isSet = (val) => toTypeString(val) === '[object Set]';
+const isFunction$1 = (val) => typeof val === 'function';
+const isObject$1 = (val) => val !== null && typeof val === 'object';
+const isPromise = (val) => {
+    return isObject$1(val) && isFunction$1(val.then) && isFunction$1(val.catch);
+};
+const objectToString = Object.prototype.toString;
+const toTypeString = (value) => objectToString.call(value);
+// compare whether a value has changed, accounting for NaN.
+const hasChanged = (value, oldValue) => value !== oldValue && (value === value || oldValue === oldValue);
+
+// Simple effect.
+function watchEffect(effect, options) {
+    return doWatch(effect, null, options);
+}
+// initial value for watchers to trigger on undefined initial values
+const INITIAL_WATCHER_VALUE = {};
+const callWithErrorHandling = (source, args) => args ? source(...args) : source();
+function callWithAsyncErrorHandling(fn, args) {
+    if (isFunction$1(fn)) {
+        const res = callWithErrorHandling(fn, args);
+        if (res && isPromise(res)) {
+            res.catch(err => {
+                console.error(err);
+            });
+        }
+        return res;
+    }
+    const values = [];
+    for (let i = 0; i < fn.length; i++) {
+        values.push(callWithAsyncErrorHandling(fn[i], args));
+    }
+    return values;
+}
+// implementation
+function watch(source, cb, options) {
+    return doWatch(source, cb, options);
+}
+function doWatch(source, cb, { immediate, deep, onTrack, onTrigger } = EMPTY_OBJ) {
+    let getter;
+    let forceTrigger = false;
+    if (isRef(source)) {
+        getter = () => source.value;
+        forceTrigger = !!source._shallow;
+    }
+    else if (isReactive(source)) {
+        getter = () => source;
+        deep = true;
+    }
+    else if (isArray$1(source)) {
+        getter = () => source.map(s => {
+            if (isRef(s)) {
+                return s.value;
+            }
+            else if (isReactive(s)) {
+                return traverse(s);
+            }
+            else if (isFunction$1(s)) {
+                return callWithErrorHandling(s);
+            }
+        });
+    }
+    else if (isFunction$1(source)) {
+        if (cb) {
+            // getter with cb
+            getter = () => callWithErrorHandling(source);
+        }
+        else {
+            // no cb -> simple effect
+            getter = () => {
+                if (cleanup) {
+                    cleanup();
+                }
+                return callWithErrorHandling(source, [onInvalidate]);
+            };
+        }
+    }
+    else {
+        getter = NOOP;
+    }
+    if (cb && deep) {
+        const baseGetter = getter;
+        getter = () => traverse(baseGetter());
+    }
+    let cleanup;
+    const onInvalidate = (fn) => {
+        cleanup = runner.options.onStop = () => {
+            callWithErrorHandling(fn);
+        };
+    };
+    let oldValue = isArray$1(source) ? [] : INITIAL_WATCHER_VALUE;
+    const job = () => {
+        if (!runner.active) {
+            return;
+        }
+        if (cb) {
+            // watch(source, cb)
+            const newValue = runner();
+            if (deep || forceTrigger || hasChanged(newValue, oldValue)) {
+                // cleanup before running cb again
+                if (cleanup) {
+                    cleanup();
+                }
+                callWithAsyncErrorHandling(cb, [
+                    newValue,
+                    // pass undefined as the old value when it's changed for the first time
+                    oldValue === INITIAL_WATCHER_VALUE ? undefined : oldValue,
+                    onInvalidate
+                ]);
+                oldValue = newValue;
+            }
+        }
+        else {
+            // watchEffect
+            runner();
+        }
+    };
+    // important: mark the job as a watcher callback so that scheduler knows
+    // it is allowed to self-trigger (#1727)
+    job.allowRecurse = !!cb;
+    let scheduler;
+    scheduler = job;
+    const runner = effect(getter, {
+        lazy: true,
+        onTrack,
+        onTrigger,
+        scheduler
+    });
+    // initial run
+    if (cb) {
+        if (immediate) {
+            job();
+        }
+        else {
+            oldValue = runner();
+        }
+    }
+    else {
+        runner();
+    }
+    return () => {
+        stop(runner);
+    };
+}
+function traverse(value, seen = new Set()) {
+    if (!isObject$1(value) || seen.has(value)) {
+        return value;
+    }
+    seen.add(value);
+    if (isRef(value)) {
+        traverse(value.value, seen);
+    }
+    else if (isArray$1(value)) {
+        for (let i = 0; i < value.length; i++) {
+            traverse(value[i], seen);
+        }
+    }
+    else if (isSet(value) || isMap(value)) {
+        value.forEach((v) => {
+            traverse(v, seen);
+        });
+    }
+    else {
+        for (const key in value) {
+            traverse(value[key], seen);
+        }
+    }
+    return value;
 }
 
 let currentInstance;
@@ -286,4 +492,4 @@ const onBeforeUpdate = createLifecycleMethod('_bu');
 const onUpdated = createLifecycleMethod('_u');
 const onUnmounted = createLifecycleMethod('_um');
 
-export { defineComponent, onBeforeMount, onBeforeUpdate, onMounted, onUnmounted, onUpdated };
+export { defineComponent, onBeforeMount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, watch, watchEffect };

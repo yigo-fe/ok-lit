@@ -38,6 +38,9 @@
       default: 1,
       transform(value) {
         return parseInt(value)
+      },
+      validator(value) {
+        return true
       }
     },
     callback: {
@@ -85,6 +88,7 @@
 
     return () => html`
       <link rel="stylesheet" href="./index.css">
+      <h1>${props.count}</h1>
       ${[1,2,3,4].map(item => html`<div ref="listItem">${item}</div>`)}
       <button @click=${toggle}>toggle child</button>
       <p class="custom-css">

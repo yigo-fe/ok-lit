@@ -179,7 +179,10 @@ declare function defineComponent(name: string, props: PropsType | SetupFn, setup
 ```
 
 #### props
+#### 为了解决web components 组件只能接收字符串的问题，ok-lit为props提供了一定的类型转换能力，内置了String,Number,Boolean,Function,Array,Object六种类型的转换，当type提供一个数组的时候，会尝试按照数组的顺序进行转换
+
 Props会有一定的类型推导能力，如果需要指定精确的类型，请使用PropType
+
 ```typescript
 import { PropType, defineComponent } from 'ok-lit'
 
@@ -194,19 +197,19 @@ defineComponent('my-component', { prop: {
 })
 ```
 ```typescript
-export declare type PropTypes = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor;
-export interface Prop {
-  // 当前属性类型， 同Vue
-  type: PropTypes | PropTypes[];
-  // 默认值， 同Vue，复杂数据类型可以使用函数返回值的方式
-  default?: string | number | boolean | object | Array<any> | Function;
-  // 是否必填，同Vue，但是不会阻止运行，会在console给一个error警告
-  required?: boolean;
-  // 自定义转换函数，用于替换内置的转换函数，仅当传入的值与定义的类型不一致时会被调用
-  transform?: (value: string) => any;
+export type PropType<T = any> = T
+export type PropTypes<T = any> = StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor | FunctionConstructor | PropType<T>
+export interface Prop<T = PropTypes> {
+  type: PropTypes<T> | PropTypes<T>[]
+  default?: string | number | boolean | object | Array<any> | Function
+  required?: boolean
+  // 可以使用transform进行手动格式转换，不采用ok-lit默认提供的格式转换方法
+  transform?: (value: string) => any
+  // 可以使用validator进行参数格式校验，但这并不会影响组件的运行
+  validator?: (value: unknown) => boolean | never | Promise<boolean>
 }
 export interface PropsType {
-  [key: string]: Prop;
+  [key: string]: Prop
 }
 ```
 

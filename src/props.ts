@@ -16,6 +16,7 @@ export interface Prop<T = PropTypes> {
   default?: string | number | boolean | object | Array<any> | Function
   required?: boolean
   transform?: (value: string) => any
+  validator?: (value: unknown) => boolean | never | Promise<boolean>
 }
 export interface PropsType {
   [key: string]: Prop
@@ -24,13 +25,14 @@ export interface PropsType {
 export function getDefaultValue(config: Prop) {
   return isFunction(config.default) && config.type !== Function ? config.default() : config.default
 }
-
+const boolFn = () => true
 export function validateProp(key: string, config: Prop, props: { [key: string]: any }) {
+  const { default: defaultValue, required, validator, transform: userTransform } = config
   let value = props[key]
   if (isNullOrUndefined(value)) {
-    if (config.default !== undefined) {
+    if (defaultValue !== undefined) {
       value = getDefaultValue(config)
-    } else if (config.required) {
+    } else if (required) {
       error(`props ${key} is required!`)
       return
     } else {
@@ -39,7 +41,7 @@ export function validateProp(key: string, config: Prop, props: { [key: string]: 
   }
   function isBaseType(nowType: PropTypes, type: BooleanConstructor | NumberConstructor | StringConstructor, isType: Function, transform?: Function) {
     !transform && (transform = type)
-    config.transform && (transform = config.transform)
+    userTransform && (transform = userTransform)
     if (nowType !== type) {
       return false
     }
@@ -61,7 +63,7 @@ export function validateProp(key: string, config: Prop, props: { [key: string]: 
     if (isType(value)) {
       return true
     } else {
-      const transform = config.transform ?? isJSONString
+      const transform = userTransform ?? isJSONString
       const jsonResult = transform(value)
       if (jsonResult && isType(jsonResult)) {
         value = jsonResult
@@ -82,7 +84,7 @@ export function validateProp(key: string, config: Prop, props: { [key: string]: 
         const toFunction = (value: string) => {
           return new Function(`return ${value}`)()
         }
-        const transform = config.transform ?? toFunction
+        const transform = userTransform ?? toFunction
         const fn = transform(value)
         isFunction(fn) && (value = fn)
         return true
@@ -114,5 +116,19 @@ export function validateProp(key: string, config: Prop, props: { [key: string]: 
     }
   }
   props[key] = value
+  callValidator(validator, key, value)
 }
 
+
+async function callValidator(validator: Prop['validator'], key: string, value: unknown) {
+  const validatorFn = validator ?? boolFn
+  let validateResult
+  try {
+    validateResult = await validatorFn(value)
+  } catch (err) {
+    error(err.message)
+  }
+  if (!validateResult) {
+    error(`the props.${key} validate error`)
+  }
+}

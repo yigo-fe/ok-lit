@@ -40,7 +40,6 @@ type MapSources<T, Immediate> = {
 type InvalidateCbRegistrator = (cb: () => void) => void
 
 export interface WatchOptionsBase {
-  flush?: 'pre' | 'post' | 'sync'
   onTrack?: ReactiveEffectOptions['onTrack']
   onTrigger?: ReactiveEffectOptions['onTrigger']
 }
