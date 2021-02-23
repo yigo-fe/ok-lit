@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": ".",
-    "target": "esnext",
+    "target": "ES2015",
     "module": "esnext",
     "strict": true,
     "declaration": true,

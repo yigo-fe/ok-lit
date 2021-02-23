@@ -21,7 +21,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +52,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../model-driven-front" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -91,7 +91,9 @@
       <workItem from="1611744409813" duration="2173000" />
       <workItem from="1611817248405" duration="170000" />
       <workItem from="1611822759538" duration="3470000" />
-      <workItem from="1611829336832" duration="344000" />
+      <workItem from="1611829336832" duration="487000" />
+      <workItem from="1611916704748" duration="136000" />
+      <workItem from="1614051115765" duration="227000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 编写Readme">
       <created>1610359773997</created>
