@@ -366,17 +366,24 @@ function traverse(value, seen = new Set()) {
 }
 
 let currentInstance;
-function defineComponent(name, props, setup) {
+function defineComponent(name, props, setup, mode) {
     let propsKeys = [];
     let setupFn;
     let propsConfig = {};
+    let modeConfig = 'closed';
     if (isFunction(props)) {
         setupFn = props;
+        if (typeof setup === 'string') {
+            modeConfig = setup;
+        }
     }
     else if (isFunction(setup)) {
         setupFn = setup;
         propsConfig = props;
         propsKeys = Object.keys(props);
+        if (mode) {
+            modeConfig = mode;
+        }
     }
     const Component = class extends HTMLElement {
         constructor() {
@@ -396,7 +403,7 @@ function defineComponent(name, props, setup) {
             currentInstance = null;
             this._bm && this._bm.forEach((cb) => cb());
             this.emit('hook:beforeMount');
-            this.$el = this.attachShadow({ mode: 'closed' });
+            this.$el = this.attachShadow({ mode: modeConfig });
             let isMounted = false;
             reactivity.effect(() => {
                 if (!isMounted) {

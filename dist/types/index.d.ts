@@ -11,8 +11,8 @@ interface SetupFn<Props extends PropsType = {}> {
         emit(event: string, payload?: any): void;
     }): () => TemplateResult;
 }
-export declare function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn): void;
-export declare function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props, setup: SetupFn<Props>): void;
+export declare function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn, mode?: ShadowRootMode): void;
+export declare function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props, setup: SetupFn<Props>, mode?: ShadowRootMode): void;
 export declare const onBeforeMount: (cb: HookFn) => void;
 export declare const onMounted: (cb: HookFn) => void;
 export declare const onBeforeUpdate: (cb: HookFn) => void;

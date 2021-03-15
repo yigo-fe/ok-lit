@@ -2,6 +2,7 @@ import { render, TemplateResult } from 'lit-html'
 import { effect, shallowReactive } from '@vue/reactivity'
 import { PropType, PropsType, PropTypes, validateProp } from './props'
 import { isFunction, toBoolean } from './utils'
+import set = Reflect.set;
 
 type HookFn = () => unknown
 type HookName = '_bm' | '_bu' | '_u' | '_m' | '_um'
@@ -20,19 +21,26 @@ interface SetupFn<Props extends PropsType = {}>{
     emit(event: string, payload?: any): void
   }): () => TemplateResult
 }
-export function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn): void
-export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props, setup: SetupFn<Props>): void
+export function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn, mode?: ShadowRootMode): void
+export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props, setup: SetupFn<Props>, mode?: ShadowRootMode): void
 
-export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props | SetupFn<Props>, setup?: SetupFn<Props>) {
+export function defineComponent<Name extends Lowercase<string>, Props extends PropsType = {}>(name: Name, props: Props | SetupFn<Props>, setup?: SetupFn<Props> | ShadowRootMode, mode?: ShadowRootMode) {
   let propsKeys: string[] = []
   let setupFn: SetupFn<Props>
   let propsConfig: PropsType = {}
+  let modeConfig: ShadowRootMode = 'closed'
   if (isFunction(props)) {
     setupFn = props
+    if (typeof setup === 'string') {
+      modeConfig = setup
+    }
   } else if (isFunction(setup)) {
     setupFn = setup
     propsConfig = props
     propsKeys = Object.keys(props)
+    if (mode) {
+      modeConfig = mode
+    }
   }
 
   const Component = class extends HTMLElement {
@@ -59,7 +67,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       currentInstance = null
       this._bm && this._bm.forEach((cb) => cb())
       this.emit('hook:beforeMount')
-      this.$el = this.attachShadow({ mode: 'closed' })
+      this.$el = this.attachShadow({ mode: modeConfig })
       let isMounted = false
       effect(() => {
         if (!isMounted) {
