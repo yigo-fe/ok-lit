@@ -1,6 +1,6 @@
 {
   "name": "ok-lit",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "proof of concept custom elements framework powered by @vue/reactivity + lit-html",
   "author": "hcg1023 <2293885211@qq.com> (haochenguang.cn)",
   "license": "MIT",
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@vue/reactivity": "^3.0.0-rc.12",
+    "@webcomponents/shadycss": "^1.10.2",
     "lit-html": "^1.3.0"
   }
 }

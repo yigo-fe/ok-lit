@@ -2,6 +2,7 @@ import { render } from 'lit-html';
 export * from 'lit-html';
 import { stop, isRef, isReactive, effect, shallowReactive } from '@vue/reactivity';
 export * from '@vue/reactivity';
+import { prepareTemplate, styleElement } from '@webcomponents/shadycss';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -398,6 +399,7 @@ function defineComponent(name, props, setup, mode) {
             const props = (this._props = shallowReactive(propsInit));
             currentInstance = this;
             const template = setupFn.call(null, props, this);
+            prepareTemplate(template().getTemplateElement(), name);
             currentInstance = null;
             this._bm && this._bm.forEach((cb) => cb());
             this.emit('hook:beforeMount');
@@ -485,6 +487,7 @@ function defineComponent(name, props, setup, mode) {
             return obj;
         }
         connectedCallback() {
+            styleElement(this);
             this._applyDirective();
             this._m && this._m.forEach((cb) => cb());
             this.emit('hook:mounted');

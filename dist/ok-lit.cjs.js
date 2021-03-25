@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var litHtml = require('lit-html');
 var reactivity = require('@vue/reactivity');
+var shadyCss = require('@webcomponents/shadycss');
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -400,6 +401,7 @@ function defineComponent(name, props, setup, mode) {
             const props = (this._props = reactivity.shallowReactive(propsInit));
             currentInstance = this;
             const template = setupFn.call(null, props, this);
+            shadyCss.prepareTemplate(template().getTemplateElement(), name);
             currentInstance = null;
             this._bm && this._bm.forEach((cb) => cb());
             this.emit('hook:beforeMount');
@@ -487,6 +489,7 @@ function defineComponent(name, props, setup, mode) {
             return obj;
         }
         connectedCallback() {
+            shadyCss.styleElement(this);
             this._applyDirective();
             this._m && this._m.forEach((cb) => cb());
             this.emit('hook:mounted');

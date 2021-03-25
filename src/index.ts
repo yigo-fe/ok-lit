@@ -3,6 +3,7 @@ import { effect, shallowReactive } from '@vue/reactivity'
 import { PropType, PropsType, PropTypes, validateProp } from './props'
 import { isFunction, toBoolean } from './utils'
 import set = Reflect.set;
+import * as shadyCss from '@webcomponents/shadycss';
 
 type HookFn = () => unknown
 type HookName = '_bm' | '_bu' | '_u' | '_m' | '_um'
@@ -64,6 +65,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       const props = (this._props = shallowReactive(propsInit))
       currentInstance = this
       const template = setupFn.call(null, props, this)
+      shadyCss.prepareTemplate(template().getTemplateElement(), name)
       currentInstance = null
       this._bm && this._bm.forEach((cb) => cb())
       this.emit('hook:beforeMount')
@@ -150,6 +152,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
     }
 
     connectedCallback() {
+      shadyCss.styleElement(this);
       this._applyDirective()
       this._m && this._m.forEach((cb) => cb())
       this.emit('hook:mounted')
