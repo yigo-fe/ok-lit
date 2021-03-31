@@ -369,7 +369,7 @@ function defineComponent(name, props, setup, mode) {
     let propsKeys = [];
     let setupFn;
     let propsConfig = {};
-    let modeConfig = 'closed';
+    let modeConfig = 'open';
     if (isFunction(props)) {
         setupFn = props;
         if (typeof setup === 'string') {

@@ -29,7 +29,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
   let propsKeys: string[] = []
   let setupFn: SetupFn<Props>
   let propsConfig: PropsType = {}
-  let modeConfig: ShadowRootMode = 'closed'
+  let modeConfig: ShadowRootMode = 'open'
   if (isFunction(props)) {
     setupFn = props
     if (typeof setup === 'string') {
