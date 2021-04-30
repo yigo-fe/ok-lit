@@ -66,6 +66,39 @@ function isJSONString(value) {
     }
     return false;
 }
+const decamelizeKeyRegexp = /[A-Z]/g;
+const camelizeKeyRegexp = /-([a-z])/g;
+/*
+* 驼峰转中划线
+* */
+function decamelizeKey(value) {
+    return value.replace(decamelizeKeyRegexp, (text) => '-' + text.toLowerCase()).replace(/^-/, '');
+}
+function camelizeKey(value) {
+    return value.replace(camelizeKeyRegexp, (text, $1) => $1.toUpperCase());
+}
+function getAllKeys(propsKeys) {
+    let result = [];
+    mapPropsKeys(propsKeys, ((propName, decamelizePropName) => {
+        if (decamelizePropName) {
+            result.push(decamelizePropName);
+            return;
+        }
+        result.push(propName);
+    }));
+    return result;
+}
+/*
+* 遍历propsKeys，如果是驼峰命名的话，就转成中划线再执行一遍，第二个参数是中划线以后的propName
+* */
+function mapPropsKeys(propsKeys, callback) {
+    for (const propName of propsKeys) {
+        callback(propName);
+        if (decamelizeKeyRegexp.test(propName)) {
+            callback(propName, decamelizeKey(propName));
+        }
+    }
+}
 
 function getDefaultValue(config) {
     return isFunction(config.default) && config.type !== Function ? config.default() : config.default;
@@ -422,16 +455,23 @@ function defineComponent(name, props, setup, mode) {
             });
             // Remove an instance properties that alias reactive properties which
             // might have been set before the element was upgraded.
-            for (const propName of propsKeys) {
-                if (this.hasOwnProperty(propName)) {
+            mapPropsKeys(propsKeys, (propName, decamelizePropName) => {
+                if (decamelizePropName) {
+                    if (this.hasOwnProperty(decamelizePropName)) {
+                        const v = this[decamelizePropName];
+                        delete this[decamelizePropName];
+                        this[propName] = v;
+                    }
+                }
+                else if (this.hasOwnProperty(propName)) {
                     const v = this[propName];
                     delete this[propName];
                     this[propName] = v;
                 }
-            }
+            });
         }
         static get observedAttributes() {
-            return propsKeys;
+            return getAllKeys(propsKeys);
         }
         emit(event, payload) {
             const customEvent = new CustomEvent(event, {
@@ -479,10 +519,12 @@ function defineComponent(name, props, setup, mode) {
             });
         }
         _getProps() {
-            // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
             let obj = {};
             for (const propName of propsKeys) {
-                obj[propName] = this.getAttribute(propName) || this[propName] || undefined;
+                // 兼容中划线格式传入的props
+                const camelizePropName = decamelizeKey(propName);
+                // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
+                obj[propName] = this.getAttribute(propName) || this.getAttribute(camelizePropName) || this[propName] || this[camelizePropName] || undefined;
             }
             return obj;
         }
@@ -497,23 +539,34 @@ function defineComponent(name, props, setup, mode) {
             this.emit('hook:unmount');
         }
         attributeChangedCallback(name, oldValue, newValue) {
-            this._props[name] = newValue;
-            validateProp(name, propsConfig[name], this._props);
+            const propName = camelizeKey(name);
+            const validateTemp = { [propName]: newValue };
+            validateProp(propName, propsConfig[propName], validateTemp);
+            this._props[propName] = validateTemp[propName];
         }
     };
-    for (const propName of propsKeys) {
-        Object.defineProperty(Component.prototype, propName, {
-            get() {
-                if (!this._props)
-                    return undefined;
-                return this._props[propName];
-            },
-            set(v) {
-                this._props[propName] = v;
-                validateProp(propName, propsConfig[propName], this._props);
-            }
-        });
-    }
+    mapPropsKeys(propsKeys, (propName, decamelizePropName) => {
+        function defineProperty(attribute) {
+            Object.defineProperty(Component.prototype, attribute, {
+                get() {
+                    if (!this._props)
+                        return undefined;
+                    return this._props[propName];
+                },
+                set(newValue) {
+                    const validateTemp = { [propName]: newValue };
+                    validateProp(propName, propsConfig[propName], validateTemp);
+                    this._props[propName] = validateTemp[propName];
+                }
+            });
+        }
+        if (decamelizePropName) {
+            defineProperty(decamelizePropName);
+        }
+        else {
+            defineProperty(propName);
+        }
+    });
     customElements.define(name, Component);
 }
 function createLifecycleMethod(name) {
