@@ -17,3 +17,9 @@ export declare function isNullOrUndefined(arg: unknown): arg is undefined | null
 export declare function toBoolean(value: unknown): boolean;
 export declare function JSONCopy<T extends object>(value: T): T;
 export declare function isJSONString(value: string): boolean | object;
+export declare const decamelizeKeyRegexp: RegExp;
+export declare const camelizeKeyRegexp: RegExp;
+export declare function decamelizeKey(value: string): string;
+export declare function camelizeKey(value: string): string;
+export declare function getAllKeys(propsKeys: string[]): string[];
+export declare function mapPropsKeys(propsKeys: string[], callback: (propName: string, decamelizePropName?: string) => void): void;

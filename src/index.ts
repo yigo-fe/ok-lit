@@ -1,8 +1,14 @@
 import { render, TemplateResult } from 'lit-html'
 import { effect, shallowReactive } from '@vue/reactivity'
 import { PropType, PropsType, PropTypes, validateProp } from './props'
-import { isFunction, toBoolean } from './utils'
-import set = Reflect.set;
+import {
+	camelizeKey,
+	decamelizeKey,
+	getAllKeys,
+	isFunction,
+	mapPropsKeys,
+	toBoolean
+} from './utils'
 import * as shadyCss from '@webcomponents/shadycss';
 
 type HookFn = () => unknown
@@ -10,7 +16,6 @@ type HookName = '_bm' | '_bu' | '_u' | '_m' | '_um'
 type Hooks = Array<HookFn>
 
 let currentInstance: any | null
-
 type GetPropType<T> = T extends ObjectConstructor ? Record<string, any> : T extends BooleanConstructor ? boolean : T extends NumberConstructor ? number : T extends StringConstructor ? string : T extends ArrayConstructor ? Array<any> : T extends FunctionConstructor ? Function : PropType<T>
 
 interface SetupFn<Props extends PropsType = {}>{
@@ -43,7 +48,6 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       modeConfig = mode
     }
   }
-
   const Component = class extends HTMLElement {
     private readonly _props: any
     private readonly _bm: Hooks = []
@@ -55,7 +59,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
     public $refs: Record<string, HTMLElement | HTMLElement[]> = {}
 
     static get observedAttributes() {
-      return propsKeys
+      return getAllKeys(propsKeys)
     }
     constructor() {
       super()
@@ -87,13 +91,19 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       })
       // Remove an instance properties that alias reactive properties which
       // might have been set before the element was upgraded.
-      for (const propName of propsKeys) {
-        if (this.hasOwnProperty(propName)) {
-          const v = (this as any)[propName];
-          delete (this as any)[propName];
-          (this as any)[propName] = v;
-        }
-      }
+	    mapPropsKeys(propsKeys, (propName, decamelizePropName) => {
+	      if (decamelizePropName) {
+		      if (this.hasOwnProperty(decamelizePropName)) {
+			      const v = (this as any)[decamelizePropName];
+			      delete (this as any)[decamelizePropName];
+			      (this as any)[propName] = v;
+		      }
+	      } else if (this.hasOwnProperty(propName)) {
+		      const v = (this as any)[propName];
+		      delete (this as any)[propName];
+		      (this as any)[propName] = v;
+	      }
+      })
     }
 
     public emit(event: string, payload?: any) {
@@ -143,10 +153,12 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
     }
 
     private _getProps() {
-      // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
       let obj: any = {}
       for (const propName of propsKeys) {
-        obj[propName] = this.getAttribute(propName) || (this as any)[propName] || undefined
+      	// 兼容中划线格式传入的props
+      	const camelizePropName = decamelizeKey(propName)
+        // 用.传入的props 在getAttribute拿不到，需要从this.propName上进行取
+        obj[propName] = this.getAttribute(propName) || this.getAttribute(camelizePropName) || (this as any)[propName] || (this as any)[camelizePropName] || undefined
       }
       return obj
     }
@@ -162,22 +174,32 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
       this.emit('hook:unmount')
     }
     attributeChangedCallback(name: string, oldValue: any, newValue: any) {
-      this._props[name] = newValue
-      validateProp(name, propsConfig[name], this._props)
+    	const propName = camelizeKey(name)
+	    const validateTemp = { [propName]: newValue }
+      validateProp(propName, propsConfig[propName], validateTemp)
+	    this._props[propName] = validateTemp[propName]
     }
   }
-  for (const propName of propsKeys) {
-    Object.defineProperty(Component.prototype, propName, {
-      get() {
-        if (!this._props) return undefined;
-        return this._props[propName];
-      },
-      set(v) {
-        this._props[propName] = v;
-        validateProp(propName, propsConfig[propName], this._props)
-      }
-    });
-  }
+	mapPropsKeys(propsKeys, (propName, decamelizePropName) => {
+		function defineProperty(attribute: string) {
+			Object.defineProperty(Component.prototype, attribute, {
+				get() {
+					if (!this._props) return undefined;
+					return this._props[propName];
+				},
+				set(newValue) {
+					const validateTemp = { [propName]: newValue }
+					validateProp(propName, propsConfig[propName], validateTemp)
+					this._props[propName] = validateTemp[propName]
+				}
+			});
+		}
+		if (decamelizePropName) {
+			defineProperty(decamelizePropName)
+		} else {
+			defineProperty(propName)
+		}
+	})
 
   customElements.define(
     name,

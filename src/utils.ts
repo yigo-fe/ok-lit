@@ -42,3 +42,39 @@ export function isJSONString(value: string): boolean | object {
   }
   return false
 }
+export const decamelizeKeyRegexp = /[A-Z]/g
+export const camelizeKeyRegexp = /-([a-z])/g
+/*
+* 驼峰转中划线
+* */
+export function decamelizeKey(value: string): string {
+	return value.replace(decamelizeKeyRegexp, (text) => '-' + text.toLowerCase()).replace(/^-/, '')
+}
+
+export function camelizeKey(value: string): string {
+	return value.replace(camelizeKeyRegexp, (text, $1) => $1.toUpperCase())
+}
+
+export function getAllKeys(propsKeys: string[]): string[] {
+	let result: string[] = []
+	mapPropsKeys(propsKeys, ((propName, decamelizePropName) => {
+		if (decamelizePropName) {
+			result.push(decamelizePropName)
+			return
+		}
+		result.push(propName)
+	}))
+	return result
+}
+
+/*
+* 遍历propsKeys，如果是驼峰命名的话，就转成中划线再执行一遍，第二个参数是中划线以后的propName
+* */
+export function mapPropsKeys(propsKeys: string[], callback: (propName: string, decamelizePropName?: string) => void): void {
+	for (const propName of propsKeys) {
+		callback(propName)
+		if (decamelizeKeyRegexp.test(propName)) {
+			callback(propName, decamelizeKey(propName))
+		}
+	}
+}
