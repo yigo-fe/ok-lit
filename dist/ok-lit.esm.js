@@ -425,6 +425,7 @@ function defineComponent(name, props, setup, mode) {
             this._u = [];
             this._m = [];
             this._um = [];
+            this._exposed = false;
             this.$refs = {};
             const propsInit = this._getProps();
             // run validate prop
@@ -479,6 +480,20 @@ function defineComponent(name, props, setup, mode) {
                 detail: payload,
             });
             this.dispatchEvent(customEvent);
+        }
+        expose(exposeMap) {
+            if (this._exposed) {
+                return;
+            }
+            this._exposed = true;
+            Object.keys(exposeMap).forEach(key => {
+                if (Object.hasOwnProperty.call(this, key)) {
+                    return;
+                }
+                Object.defineProperty(this, key, {
+                    value: exposeMap[key]
+                });
+            });
         }
         _applyDirective() {
             this._applyVShow();

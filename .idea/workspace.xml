@@ -21,8 +21,12 @@
   <component name="ChangeListManager">
     <list default="true" id="c121206b-fad7-46c8-ae58-5bea3e221d08" name="Default Changelist" comment="feat: 编写Readme">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/ok-lit.umd.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ok-lit.umd.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/types/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/types/index.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/example.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/example.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +105,8 @@
       <workItem from="1619772812741" duration="6498000" />
       <workItem from="1620632474511" duration="629000" />
       <workItem from="1620963703569" duration="771000" />
-      <workItem from="1623823308740" duration="193000" />
+      <workItem from="1623823308740" duration="278000" />
+      <workItem from="1625823698335" duration="1264000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 编写Readme">
       <created>1610359773997</created>

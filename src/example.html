@@ -76,6 +76,18 @@
       // console.log('child increase', e.detail)
     }
 
+    const testExpose = () => {
+    	console.log('TEST expose')
+    }
+    const testExpose2 = () => {
+	    console.log('TEST expose 2')
+    }
+
+	  context.expose({
+		  testExpose,
+		  testExpose2
+	  })
+
     onMounted(() => {
       // console.log(context, context.$el, context.$refs)
     })
@@ -173,4 +185,8 @@
 		document.querySelector('my-test-case')['todo-list'] = [1,2,3,4]
 	}, 5000)
 
+
+	const myComponent = document.querySelector('my-component')
+	console.dir(myComponent)
+	myComponent.testExpose()
 </script>

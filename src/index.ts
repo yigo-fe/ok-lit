@@ -7,7 +7,7 @@ import {
 	getAllKeys,
 	isFunction,
 	mapPropsKeys,
-	toBoolean
+	toBoolean, warn
 } from './utils'
 import * as shadyCss from '@webcomponents/shadycss';
 
@@ -25,6 +25,7 @@ interface SetupFn<Props extends PropsType = {}>{
     $el: ShadowRoot
     $refs: Record<string, HTMLElement | HTMLElement[]>
     emit(event: string, payload?: any): void
+	  expose(exposeMap: Record<string, any>): void
   }): () => TemplateResult
 }
 export function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn, mode?: ShadowRootMode): void
@@ -55,6 +56,7 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
     private readonly _u: Hooks = []
     private readonly _m: Hooks = []
     private readonly _um: Hooks = []
+	  private _exposed = false
     public readonly $el: ShadowRoot
     public $refs: Record<string, HTMLElement | HTMLElement[]> = {}
 
@@ -112,6 +114,22 @@ export function defineComponent<Name extends Lowercase<string>, Props extends Pr
         detail: payload,
       });
       this.dispatchEvent(customEvent)
+    }
+
+    public expose(exposeMap: Record<string, any>) {
+    	if (this._exposed) {
+    		return
+	    }
+    	this._exposed = true
+	    Object.keys(exposeMap).forEach(key => {
+	    	if (Object.hasOwnProperty.call(this, key)) {
+	    		warn(`%o don't expose %o key, Because it already has this key`, this, key)
+			    return
+		    }
+	    	Object.defineProperty(this, key, {
+	    		value: exposeMap[key]
+		    })
+	    })
     }
 
     private _applyDirective() {

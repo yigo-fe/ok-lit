@@ -9,6 +9,7 @@ interface SetupFn<Props extends PropsType = {}> {
         $el: ShadowRoot;
         $refs: Record<string, HTMLElement | HTMLElement[]>;
         emit(event: string, payload?: any): void;
+        expose(exposeMap: Record<string, any>): void;
     }): () => TemplateResult;
 }
 export declare function defineComponent<Name extends Lowercase<string>>(name: Name, setup: SetupFn, mode?: ShadowRootMode): void;

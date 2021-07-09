@@ -64,6 +64,18 @@
       console.log('child increase', e.detail)
     }
 
+    const testExpose = () => {
+      console.log('TEST expose')
+    }
+    const testExpose2 = () => {
+        console.log('TEST expose 2')
+    }
+    // 抛出函数，使外部可以使用
+    context.expose({
+        testExpose,
+        testExpose2
+    })
+
     onMounted(() => {
       console.log(context.$refs)
     })
@@ -224,6 +236,8 @@ type SetupFn = (props: object, context: {
   // 事件发布，event参数是事件名称，payload参数是携带的值
   emit(event: string, payload?: any): void
 }) => () => TemplateResult
+  // 暴露方法或属性给外部调用，注意不能和props重名
+  expose(exposeMap: Record<string, any>): void
 ```
 
 #### 其余api参考
